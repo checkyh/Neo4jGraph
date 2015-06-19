@@ -56,6 +56,7 @@ import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.TypeParameter;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WildcardType;
+import org.neo4j.cypher.internal.compiler.v2_1.docbuilders.internalDocBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
@@ -86,7 +87,7 @@ public class Query2 {
 		String queryString = "MERGE (n: PackageDeclaration { NAME : {pkgName}"
 				+ setPid;
 		Map<String, Object> params = new HashMap<>();
-		if (node.getName() != null) {
+		if (node!= null) {
 			params.put("pkgName", node.getName().getFullyQualifiedName());
 			// params.put("Key", node.resolveBinding().getKey());
 		} else {
@@ -946,12 +947,13 @@ public class Query2 {
 	 * 
 	 * @return
 	 */
-	public long projectQuery(String name,String version) {
+	public long projectQuery(String name,String version,String uploader) {
 		ResourceIterator<Node> resultIterator = null;
-		String queryString = "MERGE (n: Project { NAME : {pname},VERSION:{version},P_ID:{pid}}) RETURN n";
+		String queryString = "MERGE (n: Project { NAME : {pname},VERSION:{version},UPLOADER:{up},P_ID:{pid}}) RETURN n";
 		Map<String, Object> params = new HashMap<>();
 		params.put("pname", name);
 		params.put("version", version);
+		params.put("up", uploader);
 		params.put("pid", pid);
 		resultIterator = db.execute(queryString, params).columnAs("n");
 		Node result = resultIterator.next();

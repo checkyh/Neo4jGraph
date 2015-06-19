@@ -557,12 +557,12 @@ public class JFileVisitor2 extends ASTVisitor {
 			/* add child nodes and relationships between <node> and its children */
 			long id2 = -1;
 			/* PackageDeclaration */
-//			PackageDeclaration packageNode = node.getPackage();
-//			id2 = query2.pdQuery(packageNode);
-//			this.nodes.add(packageNode);
-//			this.ids.add(id2);
-//			// this.nodes.put(packageNode.getStartPosition(), id2);
-//			query2.addRelation(id1, id2, ASTProperty.PACKAGE);
+			PackageDeclaration packageNode = node.getPackage();
+			id2 = query2.pdQuery(packageNode);
+			this.nodes.add(packageNode);
+			this.ids.add(id2);
+			// this.nodes.put(packageNode.getStartPosition(), id2);
+			query2.addRelation(id1, id2, ASTProperty.PACKAGE);
 
 			/* ImportDeclaration */
 			@SuppressWarnings("unchecked")
