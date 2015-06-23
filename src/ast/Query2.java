@@ -58,6 +58,7 @@ import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 import org.eclipse.jdt.core.dom.WildcardType;
 import org.neo4j.cypher.internal.compiler.v2_1.docbuilders.internalDocBuilder;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Result;
@@ -969,7 +970,9 @@ public class Query2 {
 		//Iterator<Integer> max = result.columnAs("mpid");
 		Iterator<Integer> n_column=result.columnAs("mpid");
 		if(n_column.hasNext()){
-			return n_column.next().intValue();
+			Integer i=n_column.next();
+			if(i!=null)
+				return i.intValue();
 		}
 		return -1; 
 

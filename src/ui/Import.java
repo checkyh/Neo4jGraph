@@ -47,6 +47,7 @@ public class Import implements Runnable {
 		this.javanum = 0;
 		this.i = 0;
 		frame = new ProgressFrame();
+		frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 	}
 	
 	// save content of the Text fields because they get disposed
