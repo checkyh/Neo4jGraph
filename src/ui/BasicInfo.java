@@ -1,5 +1,7 @@
 package ui;
 
+import java.awt.EventQueue;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.dialogs.IMessageProvider;
 import org.eclipse.jface.dialogs.TitleAreaDialog;
@@ -27,7 +29,7 @@ public class BasicInfo extends TitleAreaDialog {
 	private Shell pShell;
 	private IProject project;
 	private Label lbProName;
-	private ProgressBar progressBar;
+//	private ProgressBar progressBar;
 
 	// private LongRunningOperation operation;
 
@@ -112,12 +114,12 @@ public class BasicInfo extends TitleAreaDialog {
 				false, 1, 1));
 		new Label(grpProject, SWT.NONE);
 
-		progressBar = new ProgressBar(grpProject, SWT.NONE);
-		progressBar.setBackground(SWTResourceManager
-				.getColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
-		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
-				false, 1, 1));
-		progressBar.setVisible(false);
+//		progressBar = new ProgressBar(grpProject, SWT.NONE);
+//		progressBar.setBackground(SWTResourceManager
+//				.getColor(SWT.COLOR_WIDGET_LIGHT_SHADOW));
+//		progressBar.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, false,
+//				false, 1, 1));
+//		progressBar.setVisible(false);
 		// operation=new LongRunningOperation(progressBar.getDisplay(),
 		// progressBar);
 
@@ -131,7 +133,19 @@ public class BasicInfo extends TitleAreaDialog {
 
 	@Override
 	protected void okPressed() {
-		progressBar.setVisible(true);
+//		progressBar.setVisible(true);
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					ProgressFrame frame = new ProgressFrame();
+//					frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+		
+		
 		new Thread(
 				new Import(txtNeoFolder.getText(), project, txtVersion
 						.getText(), txtUploader.getText())).start();

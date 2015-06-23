@@ -18,15 +18,14 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import ast.JFileVisitor2;
 import ast.Query2;
-import java.awt.BorderLayout;
-import javax.swing.JTextField;
-import javax.swing.JProgressBar;
 
-public class Import extends JFrame implements Runnable {
+
+public class Import implements Runnable {
 	/**
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
+	
 	private IProject project;
 	String version;
 	String uploader;
@@ -34,10 +33,10 @@ public class Import extends JFrame implements Runnable {
 	private int pid;
 	private int javanum;
 	private int i;
+	ProgressFrame frame;
 
 	private long projectId;
 	private ArrayList<Long> cIds = new ArrayList<Long>();
-	private JTextField textField;
 
 	public Import(String dpath, IProject project, String version,
 			String uploader) {
@@ -47,16 +46,9 @@ public class Import extends JFrame implements Runnable {
 		this.uploader = uploader;
 		this.javanum = 0;
 		this.i = 0;
-		getContentPane().setLayout(new BorderLayout(0, 0));
-		
-		textField = new JTextField();
-		getContentPane().add(textField, BorderLayout.CENTER);
-		textField.setColumns(10);
-		
-		JProgressBar progressBar = new JProgressBar();
-		getContentPane().add(progressBar, BorderLayout.SOUTH);
+		frame = new ProgressFrame();
 	}
-
+	
 	// save content of the Text fields because they get disposed
 	// as soon as the Dialog closes
 	// private void importIntoNeo() {
@@ -71,6 +63,7 @@ public class Import extends JFrame implements Runnable {
 	// }
 
 	private void analyse(IProject project) throws JavaModelException {
+		frame.appendText("Project: "+project.getName());
 		IPackageFragment[] packages = JavaCore.create(project)
 				.getPackageFragments();
 		// parse(JavaCore.create(project));
@@ -80,6 +73,7 @@ public class Import extends JFrame implements Runnable {
 		}
 		for (IPackageFragment mypackage : packages) {
 			if (mypackage.getKind() == IPackageFragmentRoot.K_SOURCE) {
+				frame.appendText("  Package: "+mypackage.getElementName());
 				// System.out.println("the package name is: "
 				// + mypackage.getElementName() + ",path: "
 				// + mypackage.getPath());
@@ -117,17 +111,18 @@ public class Import extends JFrame implements Runnable {
 		for (ICompilationUnit unit : mypackage.getCompilationUnits()) {
 			// now create the AST for the ICompilationUnits
 			CompilationUnit parse = parse(unit);
-			System.out.println("the name of java file is: "
+			frame.appendText("    File: "
 					+ unit.getElementName());
 			JFileVisitor2 visitor = new JFileVisitor2(D_PATH,
 					unit.getElementName(), pid);
 			parse.accept(visitor);
-			System.out.println("cid: " + visitor.getCuid());
+			frame.appendText("    cid: " + visitor.getCuid());
 			this.cIds.add(visitor.getCuid());
 			i++;
 			int value = (int) (i / (javanum + 0.1) * 100);
-			System.out.println("i is:" + i + ", size is:" + javanum
-					+ " ,value is:" + value);
+//			frame.appendText("i is:" + i + ", size is:" + javanum
+//					+ " ,value is:" + value);
+			frame.setProgress(value);
 			// operation.setValue(value);
 		}
 	}
@@ -139,7 +134,7 @@ public class Import extends JFrame implements Runnable {
 		System.out.println(id);
 		db.shutdown();
 		this.pid = id == -1 ? 1 : id + 1;
-		System.out.println("this pid is: " + this.pid);
+		frame.appendText("pid: " + this.pid);
 	}
 
 	private CompilationUnit parse(ICompilationUnit unit) {
@@ -154,9 +149,9 @@ public class Import extends JFrame implements Runnable {
 	@Override
 	public void run() {
 		try {
-			this.setVisible(true);
+			frame.setVisible(true);
 			this.analyse(project);
-			this.dispose();
+			frame.dispose();
 		} catch (JavaModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
