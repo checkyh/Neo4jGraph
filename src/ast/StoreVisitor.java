@@ -42,7 +42,10 @@ public class StoreVisitor extends ASTVisitor {
 //		} else if (node instanceof BooleanLiteral) {
 //			neo4jNode = booleanLiteralCreator.getInstance(node);
 //		} else {
-			Label label = DynamicLabel.label(Property.nodeTypeName(node));
+
+			String[] names = node.getClass().getName().split("\\.");
+			String name = names[names.length - 1];
+			Label label = DynamicLabel.label(name);
 			neo4jNode = db.createNode(label);
 //		}
 		
@@ -63,7 +66,9 @@ public class StoreVisitor extends ASTVisitor {
 	}
 	
 	private void setProperty(ASTNode node, String name, Object value) {
-		map.get(node).setProperty(name, value);
+		if (value != null) {
+			map.get(node).setProperty(name, value);
+		}
 	}
 	
 	public void preVisit(ASTNode node) {
