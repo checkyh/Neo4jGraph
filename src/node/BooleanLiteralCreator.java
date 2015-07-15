@@ -13,7 +13,7 @@ public class BooleanLiteralCreator extends NodeCreator {
 	public BooleanLiteralCreator(GraphDatabaseService db) {
 		this.map = new HashMap<>();
 		this.db = db;
-		label = DynamicLabel.label("BooleanLiteral");
+		this.label = DynamicLabel.label("BooleanLiteral");
 	}
 	
 	@Override
