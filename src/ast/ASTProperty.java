@@ -15,6 +15,7 @@ public class ASTProperty {
 	public static final String DECLARATION="DECLARATION";
 	public static final String DEFAULT="DEFAULT";
 	public static final String DIMENSIONS="DIMENSIONS";
+	public static final String ELEMENT_TYPE="ELEMENT_TYPE";
 	public static final String ELSE_EXPRESSION="ELSE_EXPRESSION";
 	public static final String ELSE_STATEMENT="ELSE_STATEMENT";
 	public static final String ENUM_CONSTANTS="ENUM_CONSTANTS";
@@ -28,7 +29,7 @@ public class ASTProperty {
 	public static final String INDEX="INDEX";
 	public static final String INITIALIZER="INITIALIZER";
 	public static final String INITIALIZERS="INITIALIZERS";
-	public static final String JAVA_DOC="JAVA_DOC";	//
+	public static final String JAVADOC="JAVADOC";	//
 	public static final String LEFT_HAND_SIDE="LEFT_HAND_SIDE";
 	public static final String LEFT_OPERAND="LEFT_OPERAND";
 	public static final String MESSAGE="MESSAGE";
@@ -53,8 +54,8 @@ public class ASTProperty {
 	public static final String TYPE="TYPE";
 	public static final String TYPE_ARGUMENTS="TYPE_ARGUMENTS";	// __ --> type  //can be more than one
 	public static final String TYPE_BOUNDS="TYPE_BOUNDS";
-	public static final String TYPE_PARAMETERS="TYPE_PARAMETERS";	//
-	public static final String TYPES="TYPES";		// java file --> types
-	public static final String UPDATES="UPDATES";
+	public static final String TYPE_PARAMETERS="TYPE_PARAMETERS";
+	public static final String TYPES="TYPES";
+	public static final String UPDATERS="UPDATERS";
 	public static final String VALUES="VALUES";
 }
