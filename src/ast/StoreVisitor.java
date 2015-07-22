@@ -7,6 +7,7 @@ import java.util.Map;
 import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
+import node.NullLiteralCreator;
 
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.graphdb.DynamicLabel;
@@ -20,12 +21,9 @@ public class StoreVisitor extends ASTVisitor {
 	
 	private GraphDatabaseService db;
 	
-	private Node parent = null;
-	private Node current = null;
-	private RelationshipType rWeak = DynamicRelationshipType.withName("Weak");
-	
 	private NodeCreator modifierCreator;
 	private NodeCreator booleanLiteralCreator;
+	private NodeCreator nullLiteralCreator;
 	
 	Map<ASTNode, Node> map = new HashMap<>();
 	
@@ -33,23 +31,7 @@ public class StoreVisitor extends ASTVisitor {
 		this.db = db;
 		this.modifierCreator = new ModifierCreator(db);
 		this.booleanLiteralCreator = new BooleanLiteralCreator(db);
-	}
-	
-	private void createNode(ASTNode node) {
-		Node neo4jNode;
-//		if (node instanceof Modifier) {
-//			neo4jNode = modifierCreator.getInstance(node);
-//		} else if (node instanceof BooleanLiteral) {
-//			neo4jNode = booleanLiteralCreator.getInstance(node);
-//		} else {
-
-			String[] names = node.getClass().getName().split("\\.");
-			String name = names[names.length - 1];
-			Label label = DynamicLabel.label(name);
-			neo4jNode = db.createNode(label);
-//		}
-		
-		map.put(node, neo4jNode);
+		this.nullLiteralCreator = new NullLiteralCreator(db);
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {
@@ -58,12 +40,6 @@ public class StoreVisitor extends ASTVisitor {
 		}
 		Node from = map.get(startNode);
 		Node to = map.get((ASTNode) endNode);
-//		if (from == null) {
-//			return;
-//		}
-//		if (to == null) {
-//			return;
-//		}
 		from.createRelationshipTo(to, DynamicRelationshipType.withName(type));
 	}
 	
@@ -83,21 +59,21 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void preVisit(ASTNode node) {
-		
-		createNode(node);
-		
-		this.current = map.get(node);
-		ASTNode p = node.getParent();
-		if (p == null) {
-			this.parent = null;
+		Node neo4jNode;
+		if (node instanceof Modifier) {
+			neo4jNode = modifierCreator.getInstance(node);
+		} else if (node instanceof BooleanLiteral) {
+			neo4jNode = booleanLiteralCreator.getInstance(node);
+		} else if (node instanceof NullLiteral) {
+			neo4jNode = nullLiteralCreator.getInstance(node);
 		} else {
-			this.parent = map.get(p);
+			String[] names = node.getClass().getName().split("\\.");
+			String name = names[names.length - 1];
+			Label label = DynamicLabel.label(name);
+			neo4jNode = db.createNode(label);
 		}
 
-		if (parent != null) {
-//			parent.createRelationshipTo(current, rWeak);
-		}
-		
+		map.put(node, neo4jNode);
 	}
 	
 	@Override
@@ -315,10 +291,6 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(MethodInvocation node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
-		addRelationship(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
 		return true;
 	}
 	
