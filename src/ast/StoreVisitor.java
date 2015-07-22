@@ -245,6 +245,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(FieldDeclaration node) {
+		setProperty(node, "JAVADOC", node.getJavadoc());
 		return true;
 	}
 	
@@ -314,6 +315,10 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(MethodInvocation node) {
+		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationship(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
+		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
 		return true;
 	}
 	
@@ -828,7 +833,9 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(QualifiedType node) {
-		
+		addRelationship(node, node.getQualifier(), ASTProperty.QUALIFIER);
+		addRelationship(node, node.getName(), ASTProperty.NAME);
+	
 	}
 	
 	@Override
