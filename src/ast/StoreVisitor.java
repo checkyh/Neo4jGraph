@@ -58,12 +58,12 @@ public class StoreVisitor extends ASTVisitor {
 		}
 		Node from = map.get(startNode);
 		Node to = map.get((ASTNode) endNode);
-		if (from == null) {
-			return;
-		}
-		if (to == null) {
-			return;
-		}
+//		if (from == null) {
+//			return;
+//		}
+//		if (to == null) {
+//			return;
+//		}
 		from.createRelationshipTo(to, DynamicRelationshipType.withName(type));
 	}
 	
@@ -505,8 +505,6 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(VariableDeclarationFragment node) {
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationship(node, node.getInitializer(), ASTProperty.INITIALIZER);
 		return true;
 	}
 	
