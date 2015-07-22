@@ -414,6 +414,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(SingleVariableDeclaration node) {
+		setProperty(node, "VARARGS", node.isVarargs());
 		return true;
 	}
 	
@@ -454,6 +455,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(TagElement node) {
+		setProperty(node, "TAG_NAME", node.getTagName());
 		return true;
 	}
 	
@@ -714,7 +716,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(Javadoc node) {
-		
+		addRelationships(node, node.tags(), ASTProperty.TAGS);
 	}
 	
 	@Override
@@ -750,7 +752,10 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(MethodInvocation node) {
-		
+		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationships(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
+		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
 	}
 	
 	@Override
@@ -838,7 +843,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(SimpleType node) {
-		
+		addRelationship(node, node.getName(), ASTProperty.NAME);
 	}
 	
 	@Override
@@ -848,7 +853,10 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(SingleVariableDeclaration node) {
-		
+		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
+		addRelationship(node, node.getType(), ASTProperty.TYPE);
+		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getInitializer(), ASTProperty.INITIALIZER);
 	}
 	
 	@Override
@@ -888,7 +896,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(TagElement node) {
-		
+		addRelationships(node, node.fragments(), ASTProperty.FRAGMENTS);
 	}
 	
 	@Override
