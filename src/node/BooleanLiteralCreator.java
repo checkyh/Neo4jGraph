@@ -21,7 +21,6 @@ public class BooleanLiteralCreator extends NodeCreator {
 		boolean booleanValue = ((BooleanLiteral) astNode).booleanValue();
 		if (map.get(booleanValue) == null) {
 			Node node = db.createNode(label);
-			node.setProperty("BOOLEAN_VALUE", booleanValue);
 			map.put(booleanValue, node);
 		}
 		return map.get(booleanValue);
