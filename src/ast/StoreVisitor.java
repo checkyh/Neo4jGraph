@@ -67,8 +67,8 @@ public class StoreVisitor extends ASTVisitor {
 	}
 	
 	public StoreVisitor(GraphDatabaseService db) {
-//		this(db, MERGE_NODE);
-		this(db, 0x0);
+		this(db, MERGE_NODE);
+//		this(db, 0x0);
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {
@@ -182,10 +182,11 @@ public class StoreVisitor extends ASTVisitor {
 		return true;
 	}
 
-	//TODO remove repeated work if mergeNode is on
 	@Override
 	public boolean visit(BooleanLiteral node) {
-		setProperty(node, "BOOLEAN_VALUE", node.booleanValue());
+		if (!mergeNode) {
+			setProperty(node, "BOOLEAN_VALUE", node.booleanValue());
+		}
 		return true;
 	}
 
@@ -355,10 +356,11 @@ public class StoreVisitor extends ASTVisitor {
 		return true;
 	}
 	
-	// TODO remove repeated work if mergeNode is on
 	@Override
 	public boolean visit(Modifier node) {
-		setProperty(node, "KERWORD", node.getKeyword().toString());
+		if (!mergeNode) {
+			setProperty(node, "KERWORD", node.getKeyword().toString());
+		}
 		return true;
 	}
 	
