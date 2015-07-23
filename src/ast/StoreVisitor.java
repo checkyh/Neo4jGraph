@@ -103,6 +103,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public boolean visit(ArrayInitializer node) {
+		//blank c
 		return true;
 	}
 
@@ -151,6 +152,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(CatchClause node) {
+		//blank c
 		return true;
 	}
 	
@@ -438,6 +440,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(TextElement node) {
+		setProperty(node, "TEXT", node.getText());
 		return true;
 	}
 	
@@ -532,7 +535,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(ArrayInitializer node) {
-		
+		addRelationships(node, node.expressions(), ASTProperty.EXPRESSIONS);
 	}
 
 	@Override
@@ -578,6 +581,8 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(CatchClause node) {
+		addRelationship(node, node.getException(), ASTProperty.EXCEPTION);
+		addRelationship(node, node.getBody(), ASTProperty.BODY);
 		
 	}
 	
@@ -890,12 +895,16 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(ThrowStatement node) {
+		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
 		
 	}
 	
 	@Override
 	public void endVisit(TryStatement node) {
-		
+		//addRelationship(node, node.getResources(), ASTProperty.RESOURCES);
+		addRelationship(node, node.getBody(), ASTProperty.BODY);
+		addRelationship(node, node.getFinally(), ASTProperty.FINALLY);
+		addRelationship(node, node.catchClauses(), ASTProperty.CATCH_CLAUSES);
 	}
 	
 	@Override
