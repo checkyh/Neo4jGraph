@@ -15,10 +15,14 @@ public class StoreWorker implements Worker {
 
 	@Override
 	public void work(GraphDatabaseService db) {
+		System.out.println("[StoreWorker] working for " + filename);
+		
 		Parser parser = new Parser(filename);
 		CompilationUnit unit = parser.parse();
 		StoreVisitor visitor = new StoreVisitor(db);
 		unit.accept(visitor);
+		
+		System.out.println("[StoreWorker] work finished");
 	}
 
 }

@@ -11,16 +11,11 @@ public class Driver {
 		
 		StoreWorker worker = new StoreWorker(filename);
 		
-		System.out.println("start");
-		
 		String dirPath = "M:\\Neo4j-Database\\neo4jgraph";
 		Neo4j neo4j = new Neo4j(dirPath);
-		System.out.println("ready");
 		neo4j.clear();
 		neo4j.run(worker);
 		neo4j.shutdown();
-		
-		System.out.println("done");
 	}
 
 }

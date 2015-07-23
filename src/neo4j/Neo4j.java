@@ -19,12 +19,13 @@ public class Neo4j {
 	
 	public Neo4j(String dirPath) {
 		db = new GraphDatabaseFactory().newEmbeddedDatabase(dirPath);
+		System.out.println("[Neo4j] opened, directory path: " + dirPath);
 	}
 	
 	public void clear() {
 		db.execute("MATCH ()-[r]-() DELETE r");
 		db.execute("MATCH (n) DELETE n");
-		System.out.println("Neo4j cleared");
+		System.out.println("[Neo4j] cleared");
 	}
 	
 	// Here must be a design pattern.
@@ -42,6 +43,7 @@ public class Neo4j {
 	
 	public void shutdown() {
 		db.shutdown();
+		System.out.println("[Neo4j] closed");
 	}
 
 }
