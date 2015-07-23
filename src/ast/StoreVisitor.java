@@ -44,11 +44,31 @@ public class StoreVisitor extends ASTVisitor {
 	
 	Map<ASTNode, Node> map = new HashMap<>();
 	
-	public StoreVisitor(GraphDatabaseService db) {
+	public static final int MERGE_NODE = 0x1;
+	
+	private boolean mergeNode;
+	
+	private void extractFlags(int mode) {
+		mergeNode = (mode & MERGE_NODE) != 0;
+	}
+	
+	private StoreVisitor(GraphDatabaseService db, int flags) {
 		this.db = db;
-		this.modifierCreator = new ModifierCreator(db);
-		this.booleanLiteralCreator = new BooleanLiteralCreator(db);
-		this.nullLiteralCreator = new NullLiteralCreator(db);
+		extractFlags(flags);
+		if (mergeNode) {
+			this.modifierCreator = new ModifierCreator(db);
+			this.booleanLiteralCreator = new BooleanLiteralCreator(db);
+			this.nullLiteralCreator = new NullLiteralCreator(db);
+		} else {
+			this.modifierCreator = null;
+			this.booleanLiteralCreator = null;
+			this.nullLiteralCreator = null;
+		}
+	}
+	
+	public StoreVisitor(GraphDatabaseService db) {
+//		this(db, MERGE_NODE);
+		this(db, 0x0);
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {
@@ -86,15 +106,21 @@ public class StoreVisitor extends ASTVisitor {
 	@Override
 	public void preVisit(ASTNode node) {
 		Node neo4jNode;
-		if (node instanceof Modifier) {
-			neo4jNode = modifierCreator.getInstance(node);
-		} else if (node instanceof BooleanLiteral) {
-			neo4jNode = booleanLiteralCreator.getInstance(node);
-		} else if (node instanceof NullLiteral) {
-			neo4jNode = nullLiteralCreator.getInstance(node);
+		
+		if (mergeNode) {
+			if (node instanceof Modifier) {
+				neo4jNode = modifierCreator.getInstance(node);
+			} else if (node instanceof BooleanLiteral) {
+				neo4jNode = booleanLiteralCreator.getInstance(node);
+			} else if (node instanceof NullLiteral) {
+				neo4jNode = nullLiteralCreator.getInstance(node);
+			} else {
+				neo4jNode = createNode(node);
+			}
 		} else {
 			neo4jNode = createNode(node);
 		}
+		
 		map.put(node, neo4jNode);
 	}
 	
@@ -156,9 +182,10 @@ public class StoreVisitor extends ASTVisitor {
 		return true;
 	}
 
+	//TODO remove repeated work if mergeNode is on
 	@Override
 	public boolean visit(BooleanLiteral node) {
-		// this method should be left blank
+		setProperty(node, "BOOLEAN_VALUE", node.booleanValue());
 		return true;
 	}
 
@@ -328,9 +355,10 @@ public class StoreVisitor extends ASTVisitor {
 		return true;
 	}
 	
+	// TODO remove repeated work if mergeNode is on
 	@Override
 	public boolean visit(Modifier node) {
-		// this method should be left blank
+		setProperty(node, "KERWORD", node.getKeyword().toString());
 		return true;
 	}
 	
@@ -341,6 +369,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(NullLiteral node) {
+		// this method should be left blank
 		return true;
 	}
 	
@@ -925,8 +954,8 @@ public class StoreVisitor extends ASTVisitor {
 	public void endVisit(TryStatement node) {
 		//addRelationship(node, node.getResources(), ASTProperty.RESOURCES);
 		addRelationship(node, node.getBody(), ASTProperty.BODY);
+		addRelationships(node, node.catchClauses(), ASTProperty.CATCH_CLAUSES);
 		addRelationship(node, node.getFinally(), ASTProperty.FINALLY);
-		addRelationship(node, node.catchClauses(), ASTProperty.CATCH_CLAUSES);
 	}
 	
 	@Override

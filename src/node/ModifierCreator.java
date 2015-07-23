@@ -21,7 +21,6 @@ public class ModifierCreator extends NodeCreator {
 		String keyword = ((Modifier) astNode).getKeyword().toString();
 		if (map.get(keyword) == null) {
 			Node node = db.createNode(label);
-			node.setProperty("keyword", keyword);
 			map.put(keyword, node);
 		}
 		
