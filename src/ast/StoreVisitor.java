@@ -16,6 +16,24 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
+/**
+ * StoreVisitor stores the whole AST into Neo4j database, mapping nodes in AST
+ * to nodes in Neo4j, and edges in AST to relationships in Neo4j.
+ * <p>
+ * StoreVisitor stores a (one-one) <code>Map</code> from ASTNode to Neo4j's node,
+ * and uses this map when setting properties and adding relationships.
+ * <p>
+ * Working pattern and procedure:
+ * <ol><li>create node in <code>preVisit()</code>
+ * <li>set property for node in <code>visit(node)</code>
+ * <li>add relationship between nodes in <code>endVisit(node)</code>
+ * </ol>
+ * <p>
+ * Note that <code>addRelationship</code> and <code>addRelationships</code>
+ * should be invoked in <code>endVisit</code> (but not in <code>visit</code>),
+ * because a relationship can only be created when both nodes are created.
+ *
+ */
 public class StoreVisitor extends ASTVisitor {
 	
 	private GraphDatabaseService db;
@@ -55,6 +73,15 @@ public class StoreVisitor extends ASTVisitor {
 		}
         map.get(node).setProperty(name, value);
 	}
+
+	private Node createNode(ASTNode node) {
+		// use class name as Node's label
+		// Note that the class name is name of subclass, not "ASTNode" 
+		String[] names = node.getClass().getName().split("\\.");
+		String name = names[names.length - 1];
+		Label label = DynamicLabel.label(name);
+		return db.createNode(label);
+	}
 	
 	@Override
 	public void preVisit(ASTNode node) {
@@ -66,12 +93,8 @@ public class StoreVisitor extends ASTVisitor {
 		} else if (node instanceof NullLiteral) {
 			neo4jNode = nullLiteralCreator.getInstance(node);
 		} else {
-			String[] names = node.getClass().getName().split("\\.");
-			String name = names[names.length - 1];
-			Label label = DynamicLabel.label(name);
-			neo4jNode = db.createNode(label);
+			neo4jNode = createNode(node);
 		}
-
 		map.put(node, neo4jNode);
 	}
 	
