@@ -157,17 +157,10 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void postVisit(ASTNode node) {
+		Node neo4jNode = map.get(node);
 		if (node instanceof Type) {
-			IBinding binding = ((Type) node).resolveBinding();
-			String key;
-			if (binding == null) {
-				key = "null";
-			} else {
-				key = binding.getKey();
-			}
-			Node keyNode = typeKeyCreator.createTypeKey(key);
-			keyNode.addLabel(DynamicLabel.label("TypeKey"));
-			map.get(node).createRelationshipTo(keyNode, DynamicRelationshipType.withName("KEY"));
+			// FIXME doesn't work well when mergeNode = false
+			typeKeyCreator.createTypeKey((Type) node, neo4jNode);
 		}
 		// TODO add MethodKey and VariableKey
 	}

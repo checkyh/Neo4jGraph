@@ -3,15 +3,20 @@ package node;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.jdt.core.dom.IBinding;
+import org.eclipse.jdt.core.dom.Type;
 import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.RelationshipType;
 
 public class TypeKeyCreator {
 	
 	private Map<Object, Node> map = new HashMap<>();
 	private Label lKey = DynamicLabel.label("Key");
+	private RelationshipType rKey = DynamicRelationshipType.withName("KEY");
 	
 	private GraphDatabaseService db;
 	
@@ -26,13 +31,16 @@ public class TypeKeyCreator {
 		return node;
 	}
 	
-	public Node createTypeKey(String key) {
-		if (map.get(key) == null) {
-			Node node = createNode(key);
-			map.put(key, node);
+	public void createTypeKey(Type astNode, Node startNode) {
+		IBinding binding = astNode.resolveBinding();
+		if (binding == null) {
+			throw new NullPointerException("binding is null");
 		}
-		return map.get(key);
+		String key = binding.getKey();
+		if (map.get(key) == null) {
+			Node endNode = createNode(key);
+			startNode.createRelationshipTo(endNode, rKey);
+			map.put(key, endNode);
+		}
 	}
-
-	
 }

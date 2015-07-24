@@ -19,12 +19,15 @@ public class StoreWorker implements Worker {
 	public void work(GraphDatabaseService db) {
 		System.out.println("[StoreWorker] working for " + filename);
 		
-		Parser parser = new Parser(filename);
-		CompilationUnit unit = parser.parse();
-		StoreVisitor visitor = new StoreVisitor(db);
-		unit.accept(visitor);
+		store(db);
 		
 		System.out.println("[StoreWorker] work finished");
 	}
 
+	private void store(GraphDatabaseService db) {
+		Parser parser = new Parser(filename);
+		CompilationUnit unit = parser.parse();
+		StoreVisitor visitor = new StoreVisitor(db);
+		unit.accept(visitor);
+	}
 }

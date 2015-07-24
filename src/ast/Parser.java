@@ -30,6 +30,12 @@ public class Parser {
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(program.toCharArray());
 		parser.setResolveBindings(true);
+		String[] classpathEntries = new String[1];
+		classpathEntries[0] = "D:\\Java-Projects\\Git\\Neo4jGraph\\bin\\testcase\\";
+		String[] sourcepathEntries = new String[1];
+		sourcepathEntries[0] = "D:\\Java-Projects\\Git\\Neo4jGraph\\src\\testcase\\";
+		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
+		parser.setUnitName("D:\\Java-Projects\\Git\\Neo4jGraph\\src\\testcase\\SwapArrayElements.java");
 		
 		return (CompilationUnit) parser.createAST(null);
 	}
