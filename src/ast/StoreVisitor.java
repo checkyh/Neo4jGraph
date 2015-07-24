@@ -8,6 +8,7 @@ import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
 import node.NullLiteralCreator;
+import node.PrimitiveTypeCreator;
 
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.graphdb.DynamicLabel;
@@ -39,6 +40,7 @@ public class StoreVisitor extends ASTVisitor {
 	private GraphDatabaseService db;
 	
 	private NodeCreator modifierCreator;
+	private NodeCreator primitiveTypeCreator;
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
 	
@@ -57,18 +59,20 @@ public class StoreVisitor extends ASTVisitor {
 		extractFlags(flags);
 		if (mergeNode) {
 			this.modifierCreator = new ModifierCreator(db);
+			this.primitiveTypeCreator = new PrimitiveTypeCreator(db);
 			this.booleanLiteralCreator = new BooleanLiteralCreator(db);
 			this.nullLiteralCreator = new NullLiteralCreator(db);
 		} else {
 			this.modifierCreator = null;
+			this.primitiveTypeCreator = null;
 			this.booleanLiteralCreator = null;
 			this.nullLiteralCreator = null;
 		}
 	}
 	
 	public StoreVisitor(GraphDatabaseService db) {
-		this(db, MERGE_NODE);
-//		this(db, 0x0);
+//		this(db, MERGE_NODE);
+		this(db, 0x0);
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {
@@ -110,6 +114,8 @@ public class StoreVisitor extends ASTVisitor {
 		if (mergeNode) {
 			if (node instanceof Modifier) {
 				neo4jNode = modifierCreator.getInstance(node);
+			} else if (node instanceof PrimitiveType) {
+				neo4jNode = primitiveTypeCreator.getInstance(node);
 			} else if (node instanceof BooleanLiteral) {
 				neo4jNode = booleanLiteralCreator.getInstance(node);
 			} else if (node instanceof NullLiteral) {
@@ -409,7 +415,9 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(PrimitiveType node) {
-		setProperty(node, "PRIMITIVE_TYPE_CODE", node.getPrimitiveTypeCode().toString());
+		if (!mergeNode) {
+			setProperty(node, "PRIMITIVE_TYPE_CODE", node.getPrimitiveTypeCode().toString());
+		}
 		return true;
 	}
 	
