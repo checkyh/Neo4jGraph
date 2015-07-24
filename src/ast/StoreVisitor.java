@@ -107,6 +107,21 @@ public class StoreVisitor extends ASTVisitor {
 		return db.createNode(label);
 	}
 	
+	private void addLabel(ASTNode node, String labelName) {
+		map.get(node).addLabel(DynamicLabel.label(labelName));
+	}
+	
+	private void addGeneralLabel(ASTNode node) {
+		if (node instanceof Expression) {
+			addLabel(node, "Expression");
+		} else if (node instanceof Statement) {
+			addLabel(node, "Statement");
+		} else if (node instanceof Type) {
+			addLabel(node, "Type");
+		}
+		// TODO add more general labels
+	}
+	
 	@Override
 	public void preVisit(ASTNode node) {
 		Node neo4jNode;
@@ -128,6 +143,8 @@ public class StoreVisitor extends ASTVisitor {
 		}
 		
 		map.put(node, neo4jNode);
+		
+		addGeneralLabel(node);
 	}
 	
 	@Override
