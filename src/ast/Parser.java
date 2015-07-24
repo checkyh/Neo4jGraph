@@ -29,6 +29,7 @@ public class Parser {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(program.toCharArray());
+		parser.setResolveBindings(true);
 		
 		return (CompilationUnit) parser.createAST(null);
 	}

@@ -9,6 +9,7 @@ import node.ModifierCreator;
 import node.NodeCreator;
 import node.NullLiteralCreator;
 import node.PrimitiveTypeCreator;
+import node.TypeKeyCreator;
 
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.graphdb.DynamicLabel;
@@ -44,6 +45,8 @@ public class StoreVisitor extends ASTVisitor {
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
 	
+	private TypeKeyCreator typeKeyCreator;
+	
 	Map<ASTNode, Node> map = new HashMap<>();
 	
 	public static final int MERGE_NODE = 0x1;
@@ -55,8 +58,11 @@ public class StoreVisitor extends ASTVisitor {
 	}
 	
 	private StoreVisitor(GraphDatabaseService db, int flags) {
+		
 		this.db = db;
+		
 		extractFlags(flags);
+		
 		if (mergeNode) {
 			this.modifierCreator = new ModifierCreator(db);
 			this.primitiveTypeCreator = new PrimitiveTypeCreator(db);
@@ -68,6 +74,8 @@ public class StoreVisitor extends ASTVisitor {
 			this.booleanLiteralCreator = null;
 			this.nullLiteralCreator = null;
 		}
+		
+		this.typeKeyCreator = new TypeKeyCreator(db);
 	}
 	
 	public StoreVisitor(GraphDatabaseService db) {
@@ -145,6 +153,23 @@ public class StoreVisitor extends ASTVisitor {
 		map.put(node, neo4jNode);
 		
 		addGeneralLabel(node);
+	}
+	
+	@Override
+	public void postVisit(ASTNode node) {
+		if (node instanceof Type) {
+			IBinding binding = ((Type) node).resolveBinding();
+			String key;
+			if (binding == null) {
+				key = "null";
+			} else {
+				key = binding.getKey();
+			}
+			Node keyNode = typeKeyCreator.createTypeKey(key);
+			keyNode.addLabel(DynamicLabel.label("TypeKey"));
+			map.get(node).createRelationshipTo(keyNode, DynamicRelationshipType.withName("KEY"));
+		}
+		// TODO add MethodKey and VariableKey
 	}
 	
 	@Override
