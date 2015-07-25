@@ -79,8 +79,8 @@ public class StoreVisitor extends ASTVisitor {
 	}
 	
 	public StoreVisitor(GraphDatabaseService db) {
-//		this(db, MERGE_NODE);
-		this(db, 0x0);
+		this(db, MERGE_NODE);
+//		this(db, 0x0);
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {

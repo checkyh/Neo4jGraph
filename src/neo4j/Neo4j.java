@@ -5,10 +5,10 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 /**
- * Example: suppose G is instance of class which implements Worker
+ * Example:
  * <pre><code> Neo4j neo4j = new Neo4j(dirPath);
  * neo4j.clear();
- * neo4j.run(G);
+ * neo4j.run(worker);
  * neo4j.shutdown();
  * </code></pre>
  *
