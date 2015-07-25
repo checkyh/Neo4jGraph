@@ -18,6 +18,8 @@ import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.RelationshipType;
 
 /**
  * StoreVisitor stores the whole AST into Neo4j database, mapping nodes in AST
@@ -87,13 +89,15 @@ public class StoreVisitor extends ASTVisitor {
 		return types;
 	}
 	
-	private void addRelationship(ASTNode startNode, Object endNode, String type) {
+	private void addRelationship(ASTNode startNode, Object endNode, String typeName) {
 		if (endNode == null) {
 			return;
 		}
 		Node from = map.get(startNode);
 		Node to = map.get((ASTNode) endNode);
-		from.createRelationshipTo(to, DynamicRelationshipType.withName(type));
+		RelationshipType rAST = DynamicRelationshipType.withName("AST");
+		Relationship rel = from.createRelationshipTo(to, rAST);
+		rel.setProperty("NAME", typeName);
 	}
 	
 	@SuppressWarnings("rawtypes")
