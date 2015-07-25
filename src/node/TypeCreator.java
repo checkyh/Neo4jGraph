@@ -8,9 +8,9 @@ import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
-public class PrimitiveTypeCreator extends NodeCreator {
+public class TypeCreator extends NodeCreator {
 	
-	public PrimitiveTypeCreator(GraphDatabaseService db) {
+	public TypeCreator(GraphDatabaseService db) {
 		this.map = new HashMap<>();
 		this.db = db;
 		this.label = DynamicLabel.label("PrimitiveType");

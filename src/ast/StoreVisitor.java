@@ -1,5 +1,6 @@
 package ast;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -8,7 +9,7 @@ import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
 import node.NullLiteralCreator;
-import node.PrimitiveTypeCreator;
+import node.TypeCreator;
 import node.TypeKeyCreator;
 
 import org.eclipse.jdt.core.dom.*;
@@ -41,13 +42,12 @@ public class StoreVisitor extends ASTVisitor {
 	private GraphDatabaseService db;
 	
 	private NodeCreator modifierCreator;
-	private NodeCreator primitiveTypeCreator;
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
 	
-	private TypeKeyCreator typeKeyCreator;
 	
-	Map<ASTNode, Node> map = new HashMap<>();
+	private Map<ASTNode, Node> map = new HashMap<>();
+	private List<Type> types = new ArrayList<>();
 	
 	public static final int MERGE_NODE = 0x1;
 	
@@ -65,22 +65,26 @@ public class StoreVisitor extends ASTVisitor {
 		
 		if (mergeNode) {
 			this.modifierCreator = new ModifierCreator(db);
-			this.primitiveTypeCreator = new PrimitiveTypeCreator(db);
 			this.booleanLiteralCreator = new BooleanLiteralCreator(db);
 			this.nullLiteralCreator = new NullLiteralCreator(db);
 		} else {
 			this.modifierCreator = null;
-			this.primitiveTypeCreator = null;
 			this.booleanLiteralCreator = null;
 			this.nullLiteralCreator = null;
 		}
-		
-		this.typeKeyCreator = new TypeKeyCreator(db);
 	}
 	
 	public StoreVisitor(GraphDatabaseService db) {
 		this(db, MERGE_NODE);
 //		this(db, 0x0);
+	}
+	
+	public Map<ASTNode, Node> getMap() {
+		return map;
+	}
+	
+	public List<Type> getTypes() {
+		return types;
 	}
 	
 	private void addRelationship(ASTNode startNode, Object endNode, String type) {
@@ -134,18 +138,15 @@ public class StoreVisitor extends ASTVisitor {
 	public void preVisit(ASTNode node) {
 		Node neo4jNode;
 		
-		if (mergeNode) {
-			if (node instanceof Modifier) {
-				neo4jNode = modifierCreator.getInstance(node);
-			} else if (node instanceof PrimitiveType) {
-				neo4jNode = primitiveTypeCreator.getInstance(node);
-			} else if (node instanceof BooleanLiteral) {
-				neo4jNode = booleanLiteralCreator.getInstance(node);
-			} else if (node instanceof NullLiteral) {
-				neo4jNode = nullLiteralCreator.getInstance(node);
-			} else {
-				neo4jNode = createNode(node);
-			}
+		if (node instanceof Type) {
+			neo4jNode = createNode(node);
+			types.add((Type) node);
+		} else if (mergeNode && node instanceof Modifier) {
+			neo4jNode = modifierCreator.getInstance(node);
+		} else if (mergeNode && node instanceof BooleanLiteral) {
+			neo4jNode = booleanLiteralCreator.getInstance(node);
+		} else if (mergeNode && node instanceof NullLiteral) {
+			neo4jNode = nullLiteralCreator.getInstance(node);
 		} else {
 			neo4jNode = createNode(node);
 		}
@@ -157,12 +158,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void postVisit(ASTNode node) {
-		Node neo4jNode = map.get(node);
-		if (node instanceof Type) {
-			// FIXME doesn't work well when mergeNode = false
-			typeKeyCreator.createTypeKey((Type) node, neo4jNode);
-		}
-		// TODO add MethodKey and VariableKey
+		
 	}
 	
 	@Override
@@ -450,9 +446,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public boolean visit(PrimitiveType node) {
-		if (!mergeNode) {
-			setProperty(node, "PRIMITIVE_TYPE_CODE", node.getPrimitiveTypeCode().toString());
-		}
+		setProperty(node, "PRIMITIVE_TYPE_CODE", node.getPrimitiveTypeCode().toString());
 		return true;
 	}
 	
