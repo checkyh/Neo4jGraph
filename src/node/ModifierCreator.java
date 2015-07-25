@@ -13,14 +13,13 @@ public class ModifierCreator extends NodeCreator {
 	public ModifierCreator(GraphDatabaseService db) {
 		this.map = new HashMap<>();
 		this.db = db;
-		this.label = DynamicLabel.label("Modifier");
 	}
 	
 	@Override
 	public Node getInstance(ASTNode astNode) {
 		String keyword = ((Modifier) astNode).getKeyword().toString();
 		if (map.get(keyword) == null) {
-			Node node = db.createNode(label);
+			Node node = db.createNode();
 			node.setProperty("KEYWORD", keyword);
 			map.put(keyword, node);
 		}

@@ -111,16 +111,20 @@ public class StoreVisitor extends ASTVisitor {
 	}
 
 	private Node createNode(ASTNode node) {
-		// use class name as Node's label
-		// Note that the class name is name of subclass, not "ASTNode" 
-		String[] names = node.getClass().getName().split("\\.");
-		String name = names[names.length - 1];
-		Label label = DynamicLabel.label(name);
-		return db.createNode(label);
+		Node neo4jNode = db.createNode();
+		return neo4jNode;
 	}
 	
 	private void addLabel(ASTNode node, String labelName) {
 		map.get(node).addLabel(DynamicLabel.label(labelName));
+	}
+	
+	private void addRawLabel(ASTNode node) {
+		// use class name as Node's label
+		// Note that the class name is name of subclass, not "ASTNode" 
+		String[] names = node.getClass().getName().split("\\.");
+		String name = names[names.length - 1];
+		addLabel(node, name);
 	}
 	
 	private void addGeneralLabel(ASTNode node) {
@@ -138,10 +142,7 @@ public class StoreVisitor extends ASTVisitor {
 	public void preVisit(ASTNode node) {
 		Node neo4jNode;
 		
-		if (node instanceof Type) {
-			neo4jNode = createNode(node);
-			types.add((Type) node);
-		} else if (mergeNode && node instanceof Modifier) {
+		if (mergeNode && node instanceof Modifier) {
 			neo4jNode = modifierCreator.getInstance(node);
 		} else if (mergeNode && node instanceof BooleanLiteral) {
 			neo4jNode = booleanLiteralCreator.getInstance(node);
@@ -153,7 +154,12 @@ public class StoreVisitor extends ASTVisitor {
 		
 		map.put(node, neo4jNode);
 		
+		addRawLabel(node);
 		addGeneralLabel(node);
+		
+		if (node instanceof Type) {
+			types.add((Type) node);
+		}
 	}
 	
 	@Override
