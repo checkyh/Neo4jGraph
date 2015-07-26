@@ -9,14 +9,11 @@ import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
 import node.NullLiteralCreator;
-import node.TypeCreator;
-import node.TypeKeyCreator;
 
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.RelationshipType;
@@ -125,7 +122,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	private void addRawLabel(ASTNode node) {
 		// use class name as Node's label
-		// Note that the class name is name of subclass, not "ASTNode" 
+		// Note that the class name is name of subclass, not "ASTNode"
 		String[] names = node.getClass().getName().split("\\.");
 		String name = names[names.length - 1];
 		addLabel(node, name);
