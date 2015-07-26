@@ -12,11 +12,11 @@ import node.NullLiteralCreator;
 
 import org.eclipse.jdt.core.dom.*;
 import org.neo4j.graphdb.DynamicLabel;
-import org.neo4j.graphdb.DynamicRelationshipType;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
-import org.neo4j.graphdb.RelationshipType;
+
+import relationship.Rels;
 
 /**
  * StoreVisitor stores the whole AST into Neo4j database, mapping nodes in AST
@@ -92,8 +92,8 @@ public class StoreVisitor extends ASTVisitor {
 		}
 		Node from = map.get(startNode);
 		Node to = map.get((ASTNode) endNode);
-		RelationshipType rAST = DynamicRelationshipType.withName("AST");
-		Relationship rel = from.createRelationshipTo(to, rAST);
+		
+		Relationship rel = from.createRelationshipTo(to, Rels.AST);
 		rel.setProperty("NAME", typeName);
 	}
 	

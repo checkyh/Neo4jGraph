@@ -13,6 +13,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.RelationshipType;
 
+import relationship.Rels;
 import ast.Parser;
 import ast.StoreVisitor;
 import neo4j.Worker;
@@ -43,14 +44,13 @@ public class StoreWorker implements Worker {
 		
 		// add TypeKey nodes
 		TypeKeyCreator keyNodeCreator = new TypeKeyCreator(db);
-		RelationshipType rKey = DynamicRelationshipType.withName("KEY");
 		
 		for (Type type : types) {
 			IBinding binding = type.resolveBinding();
 			String bindingKey = binding.getKey();
 			Node keyNode = keyNodeCreator.getInstance(bindingKey);
 			Node typeNode = map.get(type);
-			typeNode.createRelationshipTo(keyNode, rKey);
+			typeNode.createRelationshipTo(keyNode, Rels.KEY);
 		}
 		
 		System.out.println("[StoreWorker] work finished");
