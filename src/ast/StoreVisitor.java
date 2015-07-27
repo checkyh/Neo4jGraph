@@ -129,14 +129,25 @@ public class StoreVisitor extends ASTVisitor {
 	}
 	
 	private void addGeneralLabel(ASTNode node) {
-		if (node instanceof Expression) {
+		if (node instanceof BodyDeclaration) {
+			addLabel(node, "BodyDeclaration");
+		} else if (node instanceof AbstractTypeDeclaration) {
+			addLabel(node, "AbstractTypeDeclaration");
+		} else if (node instanceof Comment) {
+			addLabel(node, "Comment");
+		} else if (node instanceof Expression) {
 			addLabel(node, "Expression");
+		} else if (node instanceof Annotation) {
+			addLabel(node, "Annatation");
+		} else if (node instanceof Name) {
+			addLabel(node, "Name");
 		} else if (node instanceof Statement) {
 			addLabel(node, "Statement");
 		} else if (node instanceof Type) {
 			addLabel(node, "Type");
+		} else if (node instanceof VariableDeclaration) {
+			addLabel(node, "VariableDeclaration");
 		}
-		// TODO add more general labels
 	}
 	
 	@Override
