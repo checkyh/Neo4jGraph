@@ -44,7 +44,6 @@ public class StoreVisitor extends ASTVisitor {
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
 	
-	
 	private Map<ASTNode, Node> map = new HashMap<>();
 	private List<Type> types = new ArrayList<>();
 	
@@ -78,10 +77,11 @@ public class StoreVisitor extends ASTVisitor {
 //		this(db, 0x0);
 	}
 	
+	
 	public Map<ASTNode, Node> getMap() {
 		return map;
 	}
-	
+
 	public List<Type> getTypes() {
 		return types;
 	}
