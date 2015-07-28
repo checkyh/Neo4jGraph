@@ -6,20 +6,20 @@ import java.util.List;
 
 /**
  * get: 
- * <li>all java files' names and paths</li> 
+ * <li>all java files' filenames and paths</li> 
  * <li>all the source directories's paths</li>
  * <li>all the binary files' paths</li>
  * in a project
  *
  */
-public class JavaFiles {
+public class PathExplorer {
 	
-	private List<String> filepaths = new ArrayList<String>();
-	private List<String> names = new ArrayList<String>();
-	private List<String> sources = new ArrayList<String>();
-	private List<String> targets = new ArrayList<String>();
+	private List<String> filePaths = new ArrayList<String>();
+	private List<String> fileNames = new ArrayList<String>();
+	private List<String> srcs = new ArrayList<String>();
+	private List<String> bins = new ArrayList<String>();
 	
-	public JavaFiles(String dirPath) {
+	public PathExplorer(String dirPath) {
 		readDirectory(dirPath);
 	}
 
@@ -41,9 +41,9 @@ public class JavaFiles {
 		for (File subdir : dir.listFiles()) {
 			if (subdir.isDirectory()) {
 				if (subdir.getName().trim().equals("bin")) {
-					targets.add(subdir.getAbsolutePath());
+					bins.add(subdir.getAbsolutePath());
 				} else if (subdir.getName().startsWith("src")) {
-					sources.add(subdir.getAbsolutePath());
+					srcs.add(subdir.getAbsolutePath());
 				}
 				// recursively read subdirectories except bin/
 				if (!subdir.getName().startsWith("bin")) {	
@@ -51,49 +51,49 @@ public class JavaFiles {
 				}
 			} else {
 				if (subdir.getName().endsWith(".java")) {
-					filepaths.add(subdir.getAbsolutePath());
-					names.add(subdir.getName());
+					filePaths.add(subdir.getAbsolutePath());
+					fileNames.add(subdir.getName());
 				} else if (subdir.getName().endsWith(".jar")) {
-					targets.add(subdir.getAbsolutePath());
+					bins.add(subdir.getAbsolutePath());
 				}
 			}
 		}
 	}
 
 	public List<String> getFilepaths() {
-		return filepaths;
+		return filePaths;
 	}
 
-	public List<String> getNames() {
-		return names;
+	public List<String> getFileNames() {
+		return fileNames;
 	}
 
-	public String[] getSources() {
-		return sources.toArray(new String[sources.size()]);
+	public String[] getSourcePaths() {
+		return srcs.toArray(new String[srcs.size()]);
 	}
 
-	public String[] getTargets() {
-		return targets.toArray(new String[targets.size()]);
+	public String[] getClassPaths() {
+		return bins.toArray(new String[bins.size()]);
 	}
 
 	public static void main(String[] args) {
 		String dirPath = "D:\\Java-Projects\\Git\\Neo4jGraph\\";
-		JavaFiles files = new JavaFiles(dirPath);
-		System.out.println("filepaths:");
+		PathExplorer files = new PathExplorer(dirPath);
+		System.out.println("filePaths:");
 		for (String filepath : files.getFilepaths()) {
 			System.out.println(filepath);
 		}
-		System.out.println("names:");
-		for (String name : files.getNames()) {
+		System.out.println("fileNames:");
+		for (String name : files.getFileNames()) {
 			System.out.println(name);
 		}
-		System.out.println("sources:");
-		for (String source : files.getSources()) {
-			System.out.println(source);
+		System.out.println("srcs:");
+		for (String src : files.getSourcePaths()) {
+			System.out.println(src);
 		}
-		System.out.println("targets:");
-		for (String target : files.getTargets()) {
-			System.out.println(target);
+		System.out.println("bins:");
+		for (String bin : files.getClassPaths()) {
+			System.out.println(bin);
 		}
 	}
 }

@@ -53,9 +53,9 @@ public class Parser {
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
-		JavaFiles javaFiles = new JavaFiles(projectDirPath);
-		String[] sourcepathEntries = javaFiles.getSources();
-		String[] classpathEntries = javaFiles.getTargets();
+		PathExplorer explorer = new PathExplorer(projectDirPath);
+		String[] classpathEntries = explorer.getClassPaths();
+		String[] sourcepathEntries = explorer.getSourcePaths();
 		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
 		parser.setUnitName(filename);
 		parser.setResolveBindings(true);
