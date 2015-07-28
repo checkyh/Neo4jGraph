@@ -1,8 +1,13 @@
 package ast;
 
-import java.io.*;
+import java.io.BufferedInputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTParser;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+
 
 class FileReader {
 	
@@ -31,34 +36,29 @@ public class Parser {
 	
 	private String filename;
 	private String program;
+	private String projectDirPath;
 	
-	public Parser(String filename) {
+	public Parser(String projectDirPath) {
+		this.projectDirPath = projectDirPath;
+	}
+	
+	public void readFromFile(String filename) {
 		this.filename = filename;
 		FileReader fileReader = new FileReader(filename);
 		this.program = fileReader.getProgram();
 	}
 	
-	private void parsePathEntries(String[] classpathEntries, String[] sourcepathEntries, String filename) {
-		int pos = filename.lastIndexOf('\\');
-		String sourcepath = filename.substring(0, pos);
-		String classpath = sourcepath.replace("src", "bin");
-		sourcepathEntries[0] = sourcepath;
-		classpathEntries[0] = classpath;
-	}
-	
 	public CompilationUnit parse() {
-		// JLS: Java Language Specification
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
-		parser.setResolveBindings(true);
-		
-		String[] classpathEntries = new String[1];
-		String[] sourcepathEntries = new String[1];
-		parsePathEntries(classpathEntries, sourcepathEntries, filename);
+		JavaFiles javaFiles = new JavaFiles(projectDirPath);
+		String[] sourcepathEntries = javaFiles.getSources();
+		String[] classpathEntries = javaFiles.getTargets();
 		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
 		parser.setUnitName(filename);
+		parser.setResolveBindings(true);
 		
 		return (CompilationUnit) parser.createAST(null);
 	}

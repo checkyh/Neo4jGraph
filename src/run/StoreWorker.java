@@ -9,6 +9,7 @@ import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Type;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
+
 import relationship.Rels;
 import ast.Parser;
 import ast.StoreVisitor;
@@ -28,7 +29,9 @@ public class StoreWorker implements Worker {
 		System.out.println("[StoreWorker] working for " + filename);
 		
 		// parse java file to AST
-		Parser parser = new Parser(filename);
+		String dirPath = "D:\\Java-Projects\\Git\\Neo4jGraph\\";
+		Parser parser = new Parser(dirPath);
+		parser.readFromFile(filename);
 		CompilationUnit unit = parser.parse();
 		
 		// store AST into database

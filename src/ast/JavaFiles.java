@@ -13,10 +13,15 @@ import java.util.List;
  *
  */
 public class JavaFiles {
+	
 	private List<String> filepaths = new ArrayList<String>();
 	private List<String> names = new ArrayList<String>();
 	private List<String> sources = new ArrayList<String>();
 	private List<String> targets = new ArrayList<String>();
+	
+	public JavaFiles(String dirPath) {
+		readDirectory(dirPath);
+	}
 
 	/**
 	 * recursively read all files under path <code>dirPath</code>
@@ -24,7 +29,7 @@ public class JavaFiles {
 	 * @param dirPath Path of Directory
 	 * @throws IllegalStateException if <code>dirPath</code> is illegal
 	 */
-	public void readDirectory(String dirPath) {
+	private void readDirectory(String dirPath) {
 		
 		File dir = new File(dirPath);
 
@@ -72,8 +77,8 @@ public class JavaFiles {
 	}
 
 	public static void main(String[] args) {
-		JavaFiles files = new JavaFiles();
-		files.readDirectory("D:\\Java-Projects\\Git\\Neo4jGraph\\");
+		String dirPath = "D:\\Java-Projects\\Git\\Neo4jGraph\\";
+		JavaFiles files = new JavaFiles(dirPath);
 		System.out.println("filepaths:");
 		for (String filepath : files.getFilepaths()) {
 			System.out.println(filepath);
