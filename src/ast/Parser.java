@@ -4,13 +4,11 @@ import java.io.*;
 
 import org.eclipse.jdt.core.dom.*;
 
-public class Parser {
+class FileReader {
 	
-	private String filename;
 	private String program;
 	
-	public Parser(String filename) {
-		this.filename = filename;
+	public FileReader(String filename) {
 		byte[] input = null;
 		try {
 			FileInputStream fis = new FileInputStream(filename);
@@ -18,12 +16,26 @@ public class Parser {
 			input = new byte[bis.available()];
 			bis.read(input);
 			bis.close();
-		} catch (FileNotFoundException e) {
-			e.printStackTrace();
 		} catch (IOException e) {
-			e.printStackTrace();
+			throw new IllegalStateException("Cannot read file: " + filename);
 		}
 		this.program = new String(input);
+	}
+	
+	public String getProgram() {
+		return program;
+	}
+}
+
+public class Parser {
+	
+	private String filename;
+	private String program;
+	
+	public Parser(String filename) {
+		this.filename = filename;
+		FileReader fileReader = new FileReader(filename);
+		this.program = fileReader.getProgram();
 	}
 	
 	private void parsePathEntries(String[] classpathEntries, String[] sourcepathEntries, String filename) {
@@ -37,8 +49,9 @@ public class Parser {
 	public CompilationUnit parse() {
 		// JLS: Java Language Specification
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setSource(program.toCharArray());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		
 		parser.setResolveBindings(true);
 		
 		String[] classpathEntries = new String[1];
