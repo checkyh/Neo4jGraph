@@ -758,7 +758,8 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(FieldAccess node) {
-		
+		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationship(node, node.getName(), ASTProperty.NAME);
 	}
 
 	@Override
@@ -958,7 +959,9 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(SuperConstructorInvocation node) {
-		
+		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationships(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
+		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
 	}
 	
 	@Override
@@ -998,7 +1001,7 @@ public class StoreVisitor extends ASTVisitor {
 	
 	@Override
 	public void endVisit(ThisExpression node) {
-		
+		addRelationship(node, node.getQualifier(), ASTProperty.QUALIFIER);
 	}
 	
 	@Override

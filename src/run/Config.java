@@ -1,23 +1,17 @@
 package run;
 
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 
 public class Config {
 		
-	public static String PROJECT_DIR = null;
 	public static String DATABASE_DIR = ".\\database";
-	public static String PACKAGE = "testcase";
-	public static String FILENAME = "HelloWorld.java";
+	public static String PROJECT_DIR = null;
+	public static String PACKAGE = null;
+	public static String FILENAME = null;
 	public static String FILEPATH = null;
 
-	public static void getProjectPath() throws IOException {
-		File file = new File(".");
-		PROJECT_DIR = file.getCanonicalPath();
-	}
-	
 	/**
 	 * read from config file and set all its fields
 	 * @param filename config file name
@@ -32,19 +26,23 @@ public class Config {
 			if (line == null) {
 				break;
 			}
-			String[] fields = line.split("=");
-			if (fields.length != 2) {
-				System.out.println("Warning: illegal line in config file: " + line);
+			String[] fields = line.split("=", 2);
+			if (fields.length < 2) {
+				System.out.println("Warning - illegal line in config file: \n\t" + line);
 				continue;
 			}
 			String name = fields[0].trim();
 			String value = fields[1].trim();
 			if (name.equals("database.directory")) {
 				DATABASE_DIR = value;
+			} else if (name.equals("project.directory")) {
+				PROJECT_DIR = value;
 			} else if (name.equals("package")) {
 				PACKAGE = value;
 			} else if (name.equals("filename")) {
 				FILENAME = value;
+			} else {
+				System.out.println("Warning - illegal line in config file: \n\t" + line);
 			}
 		}
 		in.close();

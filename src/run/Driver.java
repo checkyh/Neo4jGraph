@@ -9,10 +9,9 @@ public class Driver {
 	public static void main(String[] args) {
 		
 		try {
-			Config.getProjectPath();
 			Config.readConfig("./config.ini");
 		} catch (IOException e) {
-			System.out.println("Fatal Error: fail to get global configuration.");
+			System.err.println("[Fatal Error] fail to get global configuration.");
 			return;
 		}
 		
