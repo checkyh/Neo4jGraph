@@ -4,4 +4,7 @@
 *.jar
 
 *.ini
+
+
 /bin/
+/database/

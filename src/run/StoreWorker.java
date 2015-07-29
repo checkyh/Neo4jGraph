@@ -17,34 +17,25 @@ import neo4j.Worker;
 import node.TypeKeyCreator;
 
 public class StoreWorker implements Worker {
-	
-	private String filename;
-	
-	public StoreWorker() {
-		this.filename = Config.PROJECT_DIR + "\\src\\" + 
-					Config.PACKAGE + "\\" + Config.FILENAME;
-	}
 
 	@Override
 	public void work(GraphDatabaseService db) {
-		System.out.println("[StoreWorker] working for " + filename);
-		
+		System.out.println("[StoreWorker] working for " + Config.FILEPATH);
+
 		// parse java file to AST
-		String dirPath = "D:\\Java-Projects\\Git\\Neo4jGraph\\";
-		Parser parser = new Parser(dirPath);
-		parser.readFromFile(filename);
+		Parser parser = new Parser();
 		CompilationUnit unit = parser.parse();
-		
+
 		// store AST into database
 		StoreVisitor visitor = new StoreVisitor(db);
 		unit.accept(visitor);
-		
+
 		List<Type> types = visitor.getTypes();
 		Map<ASTNode, Node> map = visitor.getMap();
-		
+
 		// add TypeKey nodes
 		TypeKeyCreator keyNodeCreator = new TypeKeyCreator(db);
-		
+
 		for (Type type : types) {
 			IBinding binding = type.resolveBinding();
 			String bindingKey = binding.getKey();
@@ -52,7 +43,7 @@ public class StoreWorker implements Worker {
 			Node typeNode = map.get(type);
 			typeNode.createRelationshipTo(keyNode, Rels.KEY);
 		}
-		
+
 		System.out.println("[StoreWorker] work finished");
 	}
 }

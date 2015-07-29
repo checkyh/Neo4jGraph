@@ -11,9 +11,9 @@ public class Config {
 	public static String DATABASE_DIR = ".\\database";
 	public static String PACKAGE = "testcase";
 	public static String FILENAME = "HelloWorld.java";
+	public static String FILEPATH = null;
 
 	public static void getProjectPath() throws IOException {
-		// get project directory
 		File file = new File(".");
 		PROJECT_DIR = file.getCanonicalPath();
 	}
@@ -48,6 +48,8 @@ public class Config {
 			}
 		}
 		in.close();
+		
+		FILEPATH = PROJECT_DIR + "\\src\\" + PACKAGE + "\\" + FILENAME;
 	}
 
 }

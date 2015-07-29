@@ -8,6 +8,8 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 
+import run.Config;
+
 
 class FileReader {
 	
@@ -34,17 +36,14 @@ class FileReader {
 
 public class Parser {
 	
-	private String filename;
 	private String program;
-	private String projectDirPath;
 	
-	public Parser(String projectDirPath) {
-		this.projectDirPath = projectDirPath;
+	public Parser() {
+		readFromFile();
 	}
 	
-	public void readFromFile(String filename) {
-		this.filename = filename;
-		FileReader fileReader = new FileReader(filename);
+	private void readFromFile() {
+		FileReader fileReader = new FileReader(Config.FILEPATH);
 		this.program = fileReader.getProgram();
 	}
 	
@@ -53,11 +52,11 @@ public class Parser {
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
-		PathExplorer explorer = new PathExplorer(projectDirPath);
+		PathExplorer explorer = new PathExplorer(Config.PROJECT_DIR);
 		String[] classpathEntries = explorer.getClassPaths();
 		String[] sourcepathEntries = explorer.getSourcePaths();
 		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
-		parser.setUnitName(filename);
+		parser.setUnitName(Config.FILEPATH);
 		parser.setResolveBindings(true);
 		
 		return (CompilationUnit) parser.createAST(null);
