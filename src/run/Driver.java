@@ -1,19 +1,24 @@
 package run;
 
+import java.io.IOException;
+
 import neo4j.Neo4j;
 
 public class Driver {
 
 	public static void main(String[] args) {
 		
-		String filePath = "D:\\Java-Projects\\Git\\Neo4jGraph\\src\\testcase\\";
-		String unitName = "SwapArrayElements.java";
-		String fileName = filePath + unitName;
+		try {
+			Config.getProjectPath();
+			Config.readConfig("./config.ini");
+		} catch (IOException e) {
+			System.out.println("Fatal Error: fail to get global configuration.");
+			return;
+		}
 		
-		StoreWorker worker = new StoreWorker(fileName);
+		StoreWorker worker = new StoreWorker();
 		
-		String dirPath = "M:\\Neo4j-Database\\neo4jgraph";
-		Neo4j neo4j = new Neo4j(dirPath);
+		Neo4j neo4j = new Neo4j();
 		neo4j.clear();
 		neo4j.run(worker);
 		neo4j.shutdown();

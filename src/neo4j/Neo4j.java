@@ -4,6 +4,8 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
+import run.Config;
+
 /**
  * Example:
  * <pre><code> Neo4j neo4j = new Neo4j(dirPath);
@@ -17,9 +19,9 @@ public class Neo4j {
 	
 	private GraphDatabaseService db;
 	
-	public Neo4j(String dirPath) {
-		db = new GraphDatabaseFactory().newEmbeddedDatabase(dirPath);
-		System.out.println("[Neo4j] opened, directory path: " + dirPath);
+	public Neo4j() {
+		db = new GraphDatabaseFactory().newEmbeddedDatabase(Config.DATABASE_DIR);
+		System.out.println("[Neo4j] opened, directory path: " + Config.DATABASE_DIR);
 	}
 	
 	public void clear() {

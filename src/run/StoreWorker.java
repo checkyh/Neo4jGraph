@@ -20,8 +20,9 @@ public class StoreWorker implements Worker {
 	
 	private String filename;
 	
-	public StoreWorker(String filename) {
-		this.filename = filename;
+	public StoreWorker() {
+		this.filename = Config.PROJECT_DIR + "\\src\\" + 
+					Config.PACKAGE + "\\" + Config.FILENAME;
 	}
 
 	@Override
