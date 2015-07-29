@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTNode;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Type;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -24,11 +23,11 @@ public class StoreWorker implements Worker {
 
 		// parse java file to AST
 		Parser parser = new Parser();
-		CompilationUnit unit = parser.parse();
+		ASTNode root = parser.parse();
 
 		// store AST into database
 		StoreVisitor visitor = new StoreVisitor(db);
-		unit.accept(visitor);
+		root.accept(visitor);
 
 		List<Type> types = visitor.getTypes();
 		Map<ASTNode, Node> map = visitor.getMap();

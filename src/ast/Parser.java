@@ -1,53 +1,44 @@
 package ast;
 
-import java.io.BufferedInputStream;
-import java.io.FileInputStream;
+import java.io.BufferedReader;
+import java.io.FileReader;
 import java.io.IOException;
 
 import org.eclipse.jdt.core.dom.AST;
+import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
-import org.eclipse.jdt.core.dom.CompilationUnit;
 
 import run.Config;
-
-
-class FileReader {
-	
-	private String program;
-	
-	public FileReader(String filename) {
-		byte[] input = null;
-		try {
-			FileInputStream fis = new FileInputStream(filename);
-			BufferedInputStream bis = new BufferedInputStream(fis);
-			input = new byte[bis.available()];
-			bis.read(input);
-			bis.close();
-		} catch (IOException e) {
-			throw new IllegalStateException("Cannot read file: " + filename);
-		}
-		this.program = new String(input);
-	}
-	
-	public String getProgram() {
-		return program;
-	}
-}
 
 public class Parser {
 	
 	private String program;
 	
 	public Parser() {
-		readFromFile();
+		try {
+			this.program = readProgram(Config.FILEPATH);
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot read from file " + Config.FILEPATH);
+		}
 	}
 	
-	private void readFromFile() {
-		FileReader fileReader = new FileReader(Config.FILEPATH);
-		this.program = fileReader.getProgram();
+	private String readProgram(String path) throws IOException {
+		BufferedReader in = new BufferedReader(new FileReader(path));
+		StringBuilder sb = new StringBuilder();
+		String ls = System.getProperty("line.separator");
+		while (true) {
+			String line = in.readLine();
+			if (line == null) {
+				break;
+			}
+			sb.append(line);
+			sb.append(ls);
+		}
+		in.close();
+		return sb.toString();
 	}
 	
-	public CompilationUnit parse() {
+	public ASTNode parse() {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
@@ -59,6 +50,6 @@ public class Parser {
 		parser.setUnitName(Config.FILEPATH);
 		parser.setResolveBindings(true);
 		
-		return (CompilationUnit) parser.createAST(null);
+		return parser.createAST(null);
 	}
 }
