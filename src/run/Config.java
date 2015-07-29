@@ -8,7 +8,7 @@ import java.io.IOException;
 public class Config {
 		
 	public static String PROJECT_DIR = null;
-	public static String DATABASE_DIR = "./database";
+	public static String DATABASE_DIR = ".\\database";
 	public static String PACKAGE = "testcase";
 	public static String FILENAME = "HelloWorld.java";
 
@@ -33,6 +33,10 @@ public class Config {
 				break;
 			}
 			String[] fields = line.split("=");
+			if (fields.length != 2) {
+				System.out.println("Warning: illegal line in config file: " + line);
+				continue;
+			}
 			String name = fields[0].trim();
 			String value = fields[1].trim();
 			if (name.equals("database.directory")) {

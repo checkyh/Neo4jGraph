@@ -18,8 +18,7 @@ public class Driver {
 		
 		StoreWorker worker = new StoreWorker();
 		
-		Neo4j neo4j = new Neo4j();
-		neo4j.clear();
+		Neo4j neo4j = Neo4j.open(Neo4j.WRITE);
 		neo4j.run(worker);
 		neo4j.shutdown();
 	}
