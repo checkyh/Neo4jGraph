@@ -25,7 +25,7 @@ public class StoreWorker implements Worker {
 	@Override
 	public void work(GraphDatabaseService db) {
 		
-		logger.info("working for " + Option.FILEPATH);
+		logger.info("Working for " + Option.FILEPATH);
 
 		// parse java file to AST
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
@@ -36,7 +36,7 @@ public class StoreWorker implements Worker {
 			storeAST(db, root);
 		}
 		
-		logger.info("work finished");
+		logger.info("Work finished");
 	}
 
 	public void storeAST(GraphDatabaseService db, ASTNode root) {

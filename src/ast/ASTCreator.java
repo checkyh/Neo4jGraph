@@ -69,7 +69,7 @@ public class ASTCreator implements Iterable<ASTNode> {
 		parser.setUnitName(filepath);
 		parser.setResolveBindings(true);
 
-		logger.info("create AST for " + filepath);
+		logger.info("Create AST for " + filepath);
 		return parser.createAST(null);
 	}
 

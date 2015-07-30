@@ -18,7 +18,7 @@ public class Driver {
 		try {
 			Option.readOption("./config.ini");
 		} catch (IOException e) {
-			logger.error("fail to get global configuration.");
+			logger.error("Fail to get global configuration.");
 			return;
 		}
 		

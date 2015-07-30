@@ -21,7 +21,7 @@ public class Neo4j {
 			deleteDirectory(new File(databaseDirectory));
 		}
 		GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(databaseDirectory);
-		logger.info("database opened, directory path: " + databaseDirectory);
+		logger.info("Database opened in " + databaseDirectory);
 		return new Neo4j(db);
 	}
 
@@ -56,7 +56,7 @@ public class Neo4j {
 	
 	public void shutdown() {
 		db.shutdown();
-		logger.info("database closed");
+		logger.info("Database closed");
 	}
 
 }

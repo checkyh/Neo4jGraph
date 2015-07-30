@@ -32,7 +32,7 @@ public class Option {
 			}
 			String[] fields = line.split("=", 2);
 			if (fields.length < 2) {
-				logger.warn("illegal line in config file: " + line);
+				logger.warn("Illegal line in config file: " + line);
 				continue;
 			}
 			String name = fields[0].trim();
@@ -46,7 +46,7 @@ public class Option {
 			} else if (name.equals("filename")) {
 				FILENAME = value;
 			} else {
-				logger.warn("illegal line in config file: " + line);
+				logger.warn("Illegal line in config file: " + line);
 			}
 		}
 		in.close();
