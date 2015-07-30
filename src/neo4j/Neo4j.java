@@ -41,13 +41,13 @@ public class Neo4j {
 	// Here must be a design pattern.
 	public void run(Worker worker) {
 		
-		Transaction tx = db.beginTx();
+		Transaction transaction = db.beginTx();
 		
 		try {
 			worker.work(db);
-			tx.success();
+			transaction.success();
 		} finally {
-			tx.close();
+			transaction.close();
 		}
 	}
 	

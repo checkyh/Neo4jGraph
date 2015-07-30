@@ -22,19 +22,28 @@ public class StoreWorker implements Worker {
 		System.out.println("[StoreWorker] working for " + Option.FILEPATH);
 
 		// parse java file to AST
-		ASTCreator creator = new ASTCreator();
-		ASTNode root = creator.createAST();
+		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
+		List<String> filepaths = creator.getFilepaths();
+//		ASTNode root = creator.createAST(Option.FILEPATH);
 
+		for (String filepath : filepaths) {
+			ASTNode root = creator.createAST(filepath);
+			storeAST(db, root);
+		}
+		
+		System.out.println("[StoreWorker] work finished");
+	}
+
+	public void storeAST(GraphDatabaseService db, ASTNode root) {
+		
 		// store AST into database
 		StoreVisitor visitor = new StoreVisitor(db);
 		root.accept(visitor);
-
 		List<Type> types = visitor.getTypes();
 		Map<ASTNode, Node> map = visitor.getMap();
-
+		
 		// add TypeKey nodes
 		TypeKeyCreator keyNodeCreator = new TypeKeyCreator(db);
-
 		for (Type type : types) {
 			IBinding binding = type.resolveBinding();
 			String bindingKey = binding.getKey();
@@ -42,7 +51,6 @@ public class StoreWorker implements Worker {
 			Node typeNode = map.get(type);
 			typeNode.createRelationshipTo(keyNode, Rels.KEY);
 		}
-
-		System.out.println("[StoreWorker] work finished");
+		
 	}
 }

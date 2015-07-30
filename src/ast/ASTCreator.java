@@ -3,6 +3,7 @@ package ast;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -12,17 +13,44 @@ import run.Option;
 
 public class ASTCreator {
 	
-	private String program;
+	private String[] classpathEntries;
+	private String[] sourcepathEntries;
+	private List<String> filepaths;
 	
-	public ASTCreator() {
-		try {
-			this.program = readProgram(Option.FILEPATH);
-		} catch (IOException e) {
-			throw new IllegalStateException("Cannot read from file " + Option.FILEPATH);
-		}
+	public List<String> getFilepaths() {
+		return filepaths;
 	}
-	
-	private String readProgram(String path) throws IOException {
+
+	public ASTCreator(String projectDirPath) {
+		PathExplorer explorer = PathExplorer.startExplore(projectDirPath);
+		classpathEntries = explorer.getClassPaths();
+		sourcepathEntries = explorer.getSourcePaths();
+		filepaths = explorer.getFilePaths();
+	}
+
+	public ASTNode createAST(String filepath) {
+
+		String program;
+
+		try {
+			program = readFromFile(filepath);
+		} catch (IOException e) {
+			throw new IllegalStateException("Cannot read from file "
+					+ Option.FILEPATH);
+		}
+
+		ASTParser parser = ASTParser.newParser(AST.JLS3);
+		parser.setSource(program.toCharArray());
+		parser.setKind(ASTParser.K_COMPILATION_UNIT);
+		parser.setEnvironment(classpathEntries, sourcepathEntries, null, true);
+		parser.setUnitName(filepath);
+		parser.setResolveBindings(true);
+
+		System.out.println("[ASTCreator] create AST for " + filepath);
+		return parser.createAST(null);
+	}
+
+	private String readFromFile(String path) throws IOException {
 		BufferedReader in = new BufferedReader(new FileReader(path));
 		StringBuilder sb = new StringBuilder();
 		String ls = System.getProperty("line.separator");
@@ -37,19 +65,5 @@ public class ASTCreator {
 		in.close();
 		return sb.toString();
 	}
-	
-	public ASTNode createAST() {
-		ASTParser parser = ASTParser.newParser(AST.JLS3);
-		parser.setSource(program.toCharArray());
-		parser.setKind(ASTParser.K_COMPILATION_UNIT);
-		
-		PathExplorer explorer = new PathExplorer(Option.PROJECT_DIR);
-		String[] classpathEntries = explorer.getClassPaths();
-		String[] sourcepathEntries = explorer.getSourcePaths();
-		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
-		parser.setUnitName(Option.FILEPATH);
-		parser.setResolveBindings(true);
-		
-		return parser.createAST(null);
-	}
+
 }

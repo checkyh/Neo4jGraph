@@ -19,7 +19,11 @@ public class PathExplorer {
 	private List<String> srcs = new ArrayList<String>();
 	private List<String> bins = new ArrayList<String>();
 	
-	public PathExplorer(String dirPath) {
+	public static PathExplorer startExplore(String dirPath) {
+		return new PathExplorer(dirPath);
+	}
+	
+	private PathExplorer(String dirPath) {
 		readDirectory(dirPath);
 	}
 
@@ -60,7 +64,7 @@ public class PathExplorer {
 		}
 	}
 
-	public List<String> getFilepaths() {
+	public List<String> getFilePaths() {
 		return filePaths;
 	}
 
@@ -77,10 +81,10 @@ public class PathExplorer {
 	}
 
 	public static void main(String[] args) {
-		String dirPath = "D:\\Java-Projects\\Git\\Neo4jGraph\\";
+		String dirPath = "D:\\Java-Projects\\example";
 		PathExplorer files = new PathExplorer(dirPath);
 		System.out.println("filePaths:");
-		for (String filepath : files.getFilepaths()) {
+		for (String filepath : files.getFilePaths()) {
 			System.out.println(filepath);
 		}
 		System.out.println("fileNames:");
