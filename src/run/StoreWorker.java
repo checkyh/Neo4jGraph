@@ -10,7 +10,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 
 import relationship.Rels;
-import ast.Parser;
+import ast.ASTCreator;
 import ast.StoreVisitor;
 import neo4j.Worker;
 import node.TypeKeyCreator;
@@ -19,11 +19,11 @@ public class StoreWorker implements Worker {
 
 	@Override
 	public void work(GraphDatabaseService db) {
-		System.out.println("[StoreWorker] working for " + Config.FILEPATH);
+		System.out.println("[StoreWorker] working for " + Option.FILEPATH);
 
 		// parse java file to AST
-		Parser parser = new Parser();
-		ASTNode root = parser.parse();
+		ASTCreator creator = new ASTCreator();
+		ASTNode root = creator.createAST();
 
 		// store AST into database
 		StoreVisitor visitor = new StoreVisitor(db);

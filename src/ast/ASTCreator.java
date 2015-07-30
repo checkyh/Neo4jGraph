@@ -8,17 +8,17 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 
-import run.Config;
+import run.Option;
 
-public class Parser {
+public class ASTCreator {
 	
 	private String program;
 	
-	public Parser() {
+	public ASTCreator() {
 		try {
-			this.program = readProgram(Config.FILEPATH);
+			this.program = readProgram(Option.FILEPATH);
 		} catch (IOException e) {
-			throw new IllegalStateException("Cannot read from file " + Config.FILEPATH);
+			throw new IllegalStateException("Cannot read from file " + Option.FILEPATH);
 		}
 	}
 	
@@ -38,16 +38,16 @@ public class Parser {
 		return sb.toString();
 	}
 	
-	public ASTNode parse() {
+	public ASTNode createAST() {
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		
-		PathExplorer explorer = new PathExplorer(Config.PROJECT_DIR);
+		PathExplorer explorer = new PathExplorer(Option.PROJECT_DIR);
 		String[] classpathEntries = explorer.getClassPaths();
 		String[] sourcepathEntries = explorer.getSourcePaths();
 		parser.setEnvironment(classpathEntries, sourcepathEntries, null, false);
-		parser.setUnitName(Config.FILEPATH);
+		parser.setUnitName(Option.FILEPATH);
 		parser.setResolveBindings(true);
 		
 		return parser.createAST(null);

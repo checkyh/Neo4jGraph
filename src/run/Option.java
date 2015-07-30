@@ -4,7 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
-public class Config {
+public class Option {
 		
 	public static String DATABASE_DIR = ".\\database";
 	public static String PROJECT_DIR = null;
@@ -17,7 +17,7 @@ public class Config {
 	 * @param filename config file name
 	 * @throws IOException if config file cannot be opened
 	 */
-	public static void readConfig(String filename) throws IOException {
+	public static void readOption(String filename) throws IOException {
 		
 		// read config info from file
 		BufferedReader in = new BufferedReader(new FileReader(filename));
