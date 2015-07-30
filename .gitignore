@@ -1,5 +1,5 @@
 .classpath
-.properties
+*.properties
 
 *.class
 *.jar
