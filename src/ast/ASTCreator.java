@@ -6,11 +6,14 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.List;
 
+import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 
 public class ASTCreator implements Iterable<ASTNode> {
+	
+	private static Logger logger = Logger.getLogger(ASTCreator.class);
 
 	private String[] classpathEntries;
 	private String[] sourcepathEntries;
@@ -66,7 +69,7 @@ public class ASTCreator implements Iterable<ASTNode> {
 		parser.setUnitName(filepath);
 		parser.setResolveBindings(true);
 
-		System.out.println("[ASTCreator] create AST for " + filepath);
+		logger.info("create AST for " + filepath);
 		return parser.createAST(null);
 	}
 

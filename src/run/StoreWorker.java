@@ -4,6 +4,10 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import neo4j.Worker;
+import node.TypeKeyCreator;
+
+import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Type;
@@ -13,14 +17,15 @@ import org.neo4j.graphdb.Node;
 import relationship.Rels;
 import ast.ASTCreator;
 import ast.StoreVisitor;
-import neo4j.Worker;
-import node.TypeKeyCreator;
 
 public class StoreWorker implements Worker {
+	
+	private static Logger logger = Logger.getLogger(StoreWorker.class);
 
 	@Override
 	public void work(GraphDatabaseService db) {
-		System.out.println("[StoreWorker] working for " + Option.FILEPATH);
+		
+		logger.info("working for " + Option.FILEPATH);
 
 		// parse java file to AST
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
@@ -31,7 +36,7 @@ public class StoreWorker implements Worker {
 			storeAST(db, root);
 		}
 		
-		System.out.println("[StoreWorker] work finished");
+		logger.info("work finished");
 	}
 
 	public void storeAST(GraphDatabaseService db, ASTNode root) {

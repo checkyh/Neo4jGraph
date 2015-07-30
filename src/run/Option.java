@@ -4,14 +4,18 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import org.apache.log4j.Logger;
+
 public class Option {
+	
+	private static Logger logger = Logger.getLogger(Option.class);
 		
 	public static String DATABASE_DIR = ".\\database";
 	public static String PROJECT_DIR = null;
 	public static String PACKAGE = null;
 	public static String FILENAME = null;
 	public static String FILEPATH = null;
-
+	
 	/**
 	 * read from config file and set all its fields
 	 * @param filename config file name
@@ -28,7 +32,7 @@ public class Option {
 			}
 			String[] fields = line.split("=", 2);
 			if (fields.length < 2) {
-				System.out.println("Warning - illegal line in config file: \n\t" + line);
+				logger.warn("illegal line in config file: " + line);
 				continue;
 			}
 			String name = fields[0].trim();
@@ -42,7 +46,7 @@ public class Option {
 			} else if (name.equals("filename")) {
 				FILENAME = value;
 			} else {
-				System.out.println("Warning - illegal line in config file: \n\t" + line);
+				logger.warn("illegal line in config file: " + line);
 			}
 		}
 		in.close();

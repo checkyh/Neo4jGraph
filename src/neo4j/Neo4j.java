@@ -2,11 +2,14 @@ package neo4j;
 
 import java.io.File;
 
+import org.apache.log4j.Logger;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 public class Neo4j {
+	
+	private static Logger logger = Logger.getLogger(Neo4j.class);
 	
 	private GraphDatabaseService db;
 	
@@ -18,7 +21,7 @@ public class Neo4j {
 			deleteDirectory(new File(databaseDirectory));
 		}
 		GraphDatabaseService db = new GraphDatabaseFactory().newEmbeddedDatabase(databaseDirectory);
-		System.out.println("[Neo4j] opened, directory path: " + databaseDirectory);
+		logger.info("database opened, directory path: " + databaseDirectory);
 		return new Neo4j(db);
 	}
 
@@ -53,7 +56,7 @@ public class Neo4j {
 	
 	public void shutdown() {
 		db.shutdown();
-		System.out.println("[Neo4j] closed");
+		logger.info("database closed");
 	}
 
 }
