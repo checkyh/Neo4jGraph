@@ -1,5 +1,6 @@
 package run;
 
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -23,11 +24,10 @@ public class StoreWorker implements Worker {
 
 		// parse java file to AST
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
-		List<String> filepaths = creator.getFilepaths();
-//		ASTNode root = creator.createAST(Option.FILEPATH);
 
-		for (String filepath : filepaths) {
-			ASTNode root = creator.createAST(filepath);
+		Iterator<ASTNode> iterator = creator.iterator();
+		while (iterator.hasNext()) {
+			ASTNode root = iterator.next();
 			storeAST(db, root);
 		}
 		

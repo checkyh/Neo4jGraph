@@ -3,29 +3,49 @@ package ast;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Iterator;
 import java.util.List;
 
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 
-import run.Option;
+public class ASTCreator implements Iterable<ASTNode> {
 
-public class ASTCreator {
-	
 	private String[] classpathEntries;
 	private String[] sourcepathEntries;
 	private List<String> filepaths;
-	
-	public List<String> getFilepaths() {
-		return filepaths;
-	}
 
 	public ASTCreator(String projectDirPath) {
 		PathExplorer explorer = PathExplorer.startExplore(projectDirPath);
 		classpathEntries = explorer.getClassPaths();
 		sourcepathEntries = explorer.getSourcePaths();
 		filepaths = explorer.getFilePaths();
+	}
+
+	@Override
+	public Iterator<ASTNode> iterator() {
+		return new ASTIterator();
+	}
+
+	private class ASTIterator implements Iterator<ASTNode> {
+
+		private Iterator<String> iter;
+		
+		public ASTIterator() {
+			iter = filepaths.iterator();
+		}
+
+		@Override
+		public boolean hasNext() {
+			return iter.hasNext();
+		}
+
+		@Override
+		public ASTNode next() {
+			String filepath = iter.next();
+			return createAST(filepath);
+		}
 	}
 
 	public ASTNode createAST(String filepath) {
@@ -36,7 +56,7 @@ public class ASTCreator {
 			program = readFromFile(filepath);
 		} catch (IOException e) {
 			throw new IllegalStateException("Cannot read from file "
-					+ Option.FILEPATH);
+					+ filepath);
 		}
 
 		ASTParser parser = ASTParser.newParser(AST.JLS3);
