@@ -1,7 +1,5 @@
 package neo4j;
 
-import org.neo4j.graphdb.GraphDatabaseService;
-
 public interface Worker {
-	void work(GraphDatabaseService db);
+	void workFor(Neo4j neo4j);
 }

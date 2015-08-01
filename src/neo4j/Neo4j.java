@@ -13,6 +13,10 @@ public class Neo4j {
 	
 	private GraphDatabaseService db;
 	
+	public GraphDatabaseService getDb() {
+		return db;
+	}
+
 	public static final int WRITE = 0;
 	public static final int APPEND = 1;
 	
@@ -58,18 +62,15 @@ public class Neo4j {
 	/**
 	 * let <code>worker</code> do the work for database
 	 * <p>
-	 * This method calls the <code>work</code> method of <code>worker</code>.
+	 * This method calls the <code>workFor</code> method of <code>worker</code>.
 	 * Under the normal usage, all the work for database are written in
-	 * <code>work</code> method.
+	 * <code>workFor</code> method.
 	 * 
 	 */
 	public void run(Worker worker) {
-		Transaction transaction = db.beginTx();
-		try {
-			worker.work(db);
-			transaction.success();
-		} finally {
-			transaction.close();
+		try (Transaction tx = db.beginTx()) {
+			worker.workFor(this);
+			tx.success();
 		}
 	}
 	

@@ -7,6 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import neo4j.Neo4j;
 import neo4j.Worker;
 import node.TypeKeyCreator;
 
@@ -31,23 +32,20 @@ public class StoreWorker implements Worker {
 	private Map<ASTNode, Node> map = new HashMap<>();
 
 	@Override
-	public void work(GraphDatabaseService db) {
+	public void workFor(Neo4j neo4j) {
 		
-		// parse all java files in project to AST
-		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
+		GraphDatabaseService db = neo4j.getDb();
 		
 		List<Node> compilationUnits = new ArrayList<>();
 
 		// create and store ASTs one by one
+		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
 		Iterator<ASTNode> iterator = creator.iterator();
 		while (iterator.hasNext()) {
 			ASTNode root = iterator.next();
 			Node rootNode = storeAST(db, root);
 			compilationUnits.add(rootNode);
 		}
-		
-		// add TypeKey nodes
-		createTypeKeys(db, types, map);
 		
 		// create virtual "Project" node and link it to all CompilationUnits
 		Node projectNode = db.createNode(DynamicLabel.label("Project"));
@@ -56,6 +54,9 @@ public class StoreWorker implements Worker {
 			rel.setProperty("NAME", "FILES");
 		}
 		
+		// add TypeKey nodes
+		createTypeKeys(db, types, map);
+
 		logger.info("Work finished");
 	}
 
