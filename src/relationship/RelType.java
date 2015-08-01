@@ -2,7 +2,7 @@ package relationship;
 
 import org.neo4j.graphdb.RelationshipType;
 
-public enum Rels implements RelationshipType {
+public enum RelType implements RelationshipType {
 	AST,
 	KEY,
 	UML,

@@ -8,15 +8,110 @@ import java.util.Map;
 import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
+import node.GeneralLabel;
 import node.NullLiteralCreator;
 
-import org.eclipse.jdt.core.dom.*;
+import org.eclipse.jdt.core.dom.ASTNode;
+import org.eclipse.jdt.core.dom.ASTVisitor;
+import org.eclipse.jdt.core.dom.AbstractTypeDeclaration;
+import org.eclipse.jdt.core.dom.Annotation;
+import org.eclipse.jdt.core.dom.AnnotationTypeDeclaration;
+import org.eclipse.jdt.core.dom.AnnotationTypeMemberDeclaration;
+import org.eclipse.jdt.core.dom.AnonymousClassDeclaration;
+import org.eclipse.jdt.core.dom.ArrayAccess;
+import org.eclipse.jdt.core.dom.ArrayCreation;
+import org.eclipse.jdt.core.dom.ArrayInitializer;
+import org.eclipse.jdt.core.dom.ArrayType;
+import org.eclipse.jdt.core.dom.AssertStatement;
+import org.eclipse.jdt.core.dom.Assignment;
+import org.eclipse.jdt.core.dom.Block;
+import org.eclipse.jdt.core.dom.BlockComment;
+import org.eclipse.jdt.core.dom.BodyDeclaration;
+import org.eclipse.jdt.core.dom.BooleanLiteral;
+import org.eclipse.jdt.core.dom.BreakStatement;
+import org.eclipse.jdt.core.dom.CastExpression;
+import org.eclipse.jdt.core.dom.CatchClause;
+import org.eclipse.jdt.core.dom.CharacterLiteral;
+import org.eclipse.jdt.core.dom.ClassInstanceCreation;
+import org.eclipse.jdt.core.dom.Comment;
+import org.eclipse.jdt.core.dom.CompilationUnit;
+import org.eclipse.jdt.core.dom.ConditionalExpression;
+import org.eclipse.jdt.core.dom.ConstructorInvocation;
+import org.eclipse.jdt.core.dom.ContinueStatement;
+import org.eclipse.jdt.core.dom.DoStatement;
+import org.eclipse.jdt.core.dom.EmptyStatement;
+import org.eclipse.jdt.core.dom.EnhancedForStatement;
+import org.eclipse.jdt.core.dom.EnumConstantDeclaration;
+import org.eclipse.jdt.core.dom.EnumDeclaration;
+import org.eclipse.jdt.core.dom.Expression;
+import org.eclipse.jdt.core.dom.ExpressionStatement;
+import org.eclipse.jdt.core.dom.FieldAccess;
+import org.eclipse.jdt.core.dom.FieldDeclaration;
+import org.eclipse.jdt.core.dom.ForStatement;
+import org.eclipse.jdt.core.dom.IfStatement;
+import org.eclipse.jdt.core.dom.ImportDeclaration;
+import org.eclipse.jdt.core.dom.InfixExpression;
+import org.eclipse.jdt.core.dom.Initializer;
+import org.eclipse.jdt.core.dom.InstanceofExpression;
+import org.eclipse.jdt.core.dom.Javadoc;
+import org.eclipse.jdt.core.dom.LabeledStatement;
+import org.eclipse.jdt.core.dom.MarkerAnnotation;
+import org.eclipse.jdt.core.dom.MemberRef;
+import org.eclipse.jdt.core.dom.MemberValuePair;
+import org.eclipse.jdt.core.dom.MethodDeclaration;
+import org.eclipse.jdt.core.dom.MethodInvocation;
+import org.eclipse.jdt.core.dom.MethodRef;
+import org.eclipse.jdt.core.dom.MethodRefParameter;
+import org.eclipse.jdt.core.dom.Modifier;
+import org.eclipse.jdt.core.dom.Name;
+import org.eclipse.jdt.core.dom.NormalAnnotation;
+import org.eclipse.jdt.core.dom.NullLiteral;
+import org.eclipse.jdt.core.dom.NumberLiteral;
+import org.eclipse.jdt.core.dom.PackageDeclaration;
+import org.eclipse.jdt.core.dom.ParameterizedType;
+import org.eclipse.jdt.core.dom.ParenthesizedExpression;
+import org.eclipse.jdt.core.dom.PostfixExpression;
+import org.eclipse.jdt.core.dom.PrefixExpression;
+import org.eclipse.jdt.core.dom.PrimitiveType;
+import org.eclipse.jdt.core.dom.QualifiedName;
+import org.eclipse.jdt.core.dom.QualifiedType;
+import org.eclipse.jdt.core.dom.ReturnStatement;
+import org.eclipse.jdt.core.dom.SimpleName;
+import org.eclipse.jdt.core.dom.SimpleType;
+import org.eclipse.jdt.core.dom.SingleMemberAnnotation;
+import org.eclipse.jdt.core.dom.SingleVariableDeclaration;
+import org.eclipse.jdt.core.dom.Statement;
+import org.eclipse.jdt.core.dom.StringLiteral;
+import org.eclipse.jdt.core.dom.SuperConstructorInvocation;
+import org.eclipse.jdt.core.dom.SuperFieldAccess;
+import org.eclipse.jdt.core.dom.SuperMethodInvocation;
+import org.eclipse.jdt.core.dom.SwitchCase;
+import org.eclipse.jdt.core.dom.SwitchStatement;
+import org.eclipse.jdt.core.dom.SynchronizedStatement;
+import org.eclipse.jdt.core.dom.TagElement;
+import org.eclipse.jdt.core.dom.TextElement;
+import org.eclipse.jdt.core.dom.ThisExpression;
+import org.eclipse.jdt.core.dom.ThrowStatement;
+import org.eclipse.jdt.core.dom.TryStatement;
+import org.eclipse.jdt.core.dom.Type;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.TypeDeclarationStatement;
+import org.eclipse.jdt.core.dom.TypeLiteral;
+import org.eclipse.jdt.core.dom.TypeParameter;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclarationExpression;
+import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.core.dom.VariableDeclarationStatement;
+import org.eclipse.jdt.core.dom.WhileStatement;
+import org.eclipse.jdt.core.dom.WildcardType;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import relationship.Rels;
+import relationship.RelName;
+import relationship.RelType;
 
 /**
  * StoreVisitor stores the whole AST into Neo4j database, mapping nodes in AST
@@ -42,7 +137,7 @@ public class StoreVisitor extends ASTVisitor {
 	private GraphDatabaseService db;
 
 	private Map<ASTNode, Node> map = new HashMap<>();
-	
+
 	private List<Type> types = new ArrayList<>();
 	private NodeCreator modifierCreator;
 	private NodeCreator booleanLiteralCreator;
@@ -63,21 +158,22 @@ public class StoreVisitor extends ASTVisitor {
 		return types;
 	}
 
-	private void addRelationship(ASTNode startNode, Object endNode,
-			String typeName) {
+	private void addRelationship(ASTNode startNode, ASTNode endNode,
+			String relName) {
 		if (endNode == null) {
 			return;
 		}
 		Node from = map.get(startNode);
-		Node to = map.get((ASTNode) endNode);
+		Node to = map.get(endNode);
 
-		Relationship rel = from.createRelationshipTo(to, Rels.AST);
-		rel.setProperty("NAME", typeName);
+		Relationship rel = from.createRelationshipTo(to, RelType.AST);
+		rel.setProperty("NAME", relName);
 	}
 
 	@SuppressWarnings("rawtypes")
 	private void addRelationships(ASTNode startNode, List endNodes, String type) {
-		for (Object endNode : endNodes) {
+		for (Object obj : endNodes) {
+			ASTNode endNode = (ASTNode) obj;
 			addRelationship(startNode, endNode, type);
 		}
 	}
@@ -89,13 +185,12 @@ public class StoreVisitor extends ASTVisitor {
 		map.get(node).setProperty(name, value);
 	}
 
-	private Node createNode(ASTNode node) {
-		Node neo4jNode = db.createNode();
-		return neo4jNode;
-	}
-
 	private void addLabel(ASTNode node, String labelName) {
 		map.get(node).addLabel(DynamicLabel.label(labelName));
+	}
+	
+	private void addLabel(ASTNode node, Label label) {
+		map.get(node).addLabel(label);
 	}
 
 	private void addRawLabel(ASTNode node) {
@@ -108,23 +203,23 @@ public class StoreVisitor extends ASTVisitor {
 
 	private void addGeneralLabel(ASTNode node) {
 		if (node instanceof BodyDeclaration) {
-			addLabel(node, "BodyDeclaration");
+			addLabel(node, GeneralLabel.BodyDeclaration);
 		} else if (node instanceof AbstractTypeDeclaration) {
-			addLabel(node, "AbstractTypeDeclaration");
+			addLabel(node, GeneralLabel.AbstractTypeDeclaration);
 		} else if (node instanceof Comment) {
-			addLabel(node, "Comment");
+			addLabel(node, GeneralLabel.Comment);
 		} else if (node instanceof Expression) {
-			addLabel(node, "Expression");
+			addLabel(node, GeneralLabel.Expression);
 		} else if (node instanceof Annotation) {
-			addLabel(node, "Annatation");
+			addLabel(node, GeneralLabel.Annatation);
 		} else if (node instanceof Name) {
-			addLabel(node, "Name");
+			addLabel(node, GeneralLabel.Name);
 		} else if (node instanceof Statement) {
-			addLabel(node, "Statement");
+			addLabel(node, GeneralLabel.Statement);
 		} else if (node instanceof Type) {
-			addLabel(node, "Type");
+			addLabel(node, GeneralLabel.Type);
 		} else if (node instanceof VariableDeclaration) {
-			addLabel(node, "VariableDeclaration");
+			addLabel(node, GeneralLabel.VariableDeclaration);
 		}
 	}
 
@@ -139,7 +234,7 @@ public class StoreVisitor extends ASTVisitor {
 		} else if (node instanceof NullLiteral) {
 			neo4jNode = nullLiteralCreator.getInstance(node);
 		} else {
-			neo4jNode = createNode(node);
+			neo4jNode = db.createNode();
 		}
 
 		map.put(node, neo4jNode);
@@ -605,25 +700,25 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(ArrayAccess node) {
-		addRelationship(node, node.getArray(), ASTProperty.ARRAY);
-		addRelationship(node, node.getIndex(), ASTProperty.INDEX);
+		addRelationship(node, node.getArray(), RelName.ARRAY);
+		addRelationship(node, node.getIndex(), RelName.INDEX);
 	}
 
 	@Override
 	public void endVisit(ArrayCreation node) {
-		addRelationship(node, node.getType(), ASTProperty.TYPE);
-		addRelationships(node, node.dimensions(), ASTProperty.DIMENSIONS);
-		addRelationship(node, node.getInitializer(), ASTProperty.INITIALIZER);
+		addRelationship(node, node.getType(), RelName.TYPE);
+		addRelationships(node, node.dimensions(), RelName.DIMENSIONS);
+		addRelationship(node, node.getInitializer(), RelName.INITIALIZER);
 	}
 
 	@Override
 	public void endVisit(ArrayInitializer node) {
-		addRelationships(node, node.expressions(), ASTProperty.EXPRESSIONS);
+		addRelationships(node, node.expressions(), RelName.EXPRESSIONS);
 	}
 
 	@Override
 	public void endVisit(ArrayType node) {
-		addRelationship(node, node.getElementType(), ASTProperty.ELEMENT_TYPE);
+		addRelationship(node, node.getElementType(), RelName.ELEMENT_TYPE);
 	}
 
 	@Override
@@ -633,15 +728,13 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(Assignment node) {
-		addRelationship(node, node.getLeftHandSide(),
-				ASTProperty.LEFT_HAND_SIDE);
-		addRelationship(node, node.getRightHandSide(),
-				ASTProperty.RIGHT_HAND_SIDE);
+		addRelationship(node, node.getLeftHandSide(), RelName.LEFT_HAND_SIDE);
+		addRelationship(node, node.getRightHandSide(), RelName.RIGHT_HAND_SIDE);
 	}
 
 	@Override
 	public void endVisit(Block node) {
-		addRelationships(node, node.statements(), ASTProperty.STATEMENTS);
+		addRelationships(node, node.statements(), RelName.STATEMENTS);
 	}
 
 	@Override
@@ -666,8 +759,8 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(CatchClause node) {
-		addRelationship(node, node.getException(), ASTProperty.EXCEPTION);
-		addRelationship(node, node.getBody(), ASTProperty.BODY);
+		addRelationship(node, node.getException(), RelName.EXCEPTION);
+		addRelationship(node, node.getBody(), RelName.BODY);
 
 	}
 
@@ -683,9 +776,9 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(CompilationUnit node) {
-		addRelationship(node, node.getPackage(), ASTProperty.PACKAGE);
-		addRelationships(node, node.imports(), ASTProperty.IMPORTS);
-		addRelationships(node, node.types(), ASTProperty.TYPES);
+		addRelationship(node, node.getPackage(), RelName.PACKAGE);
+		addRelationships(node, node.imports(), RelName.IMPORTS);
+		addRelationships(node, node.types(), RelName.TYPES);
 	}
 
 	@Override
@@ -730,29 +823,29 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(ExpressionStatement node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
 	}
 
 	@Override
 	public void endVisit(FieldAccess node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
+		addRelationship(node, node.getName(), RelName.NAME);
 	}
 
 	@Override
 	public void endVisit(FieldDeclaration node) {
-		addRelationship(node, node.getJavadoc(), ASTProperty.JAVADOC);
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationship(node, node.getType(), ASTProperty.TYPE);
-		addRelationships(node, node.fragments(), ASTProperty.FRAGMENTS);
+		addRelationship(node, node.getJavadoc(), RelName.JAVADOC);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationship(node, node.getType(), RelName.TYPE);
+		addRelationships(node, node.fragments(), RelName.FRAGMENTS);
 	}
 
 	@Override
 	public void endVisit(ForStatement node) {
-		addRelationships(node, node.initializers(), ASTProperty.INITIALIZERS);
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
-		addRelationships(node, node.updaters(), ASTProperty.UPDATERS);
-		addRelationship(node, node.getBody(), ASTProperty.BODY);
+		addRelationships(node, node.initializers(), RelName.INITIALIZERS);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
+		addRelationships(node, node.updaters(), RelName.UPDATERS);
+		addRelationship(node, node.getBody(), RelName.BODY);
 	}
 
 	@Override
@@ -762,15 +855,15 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(ImportDeclaration node) {
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getName(), RelName.NAME);
 	}
 
 	@Override
 	public void endVisit(InfixExpression node) {
-		addRelationship(node, node.getLeftOperand(), ASTProperty.LEFT_OPERAND);
-		addRelationship(node, node.getRightOperand(), ASTProperty.RIGHT_OPERAND);
+		addRelationship(node, node.getLeftOperand(), RelName.LEFT_OPERAND);
+		addRelationship(node, node.getRightOperand(), RelName.RIGHT_OPERAND);
 		addRelationships(node, node.extendedOperands(),
-				ASTProperty.EXTENDED_OPERANDS);
+				RelName.EXTENDED_OPERANDS);
 	}
 
 	@Override
@@ -785,7 +878,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(Javadoc node) {
-		addRelationships(node, node.tags(), ASTProperty.TAGS);
+		addRelationships(node, node.tags(), RelName.TAGS);
 	}
 
 	@Override
@@ -810,22 +903,21 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(MethodDeclaration node) {
-		addRelationship(node, node.getJavadoc(), ASTProperty.JAVADOC);
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationships(node, node.typeParameters(),
-				ASTProperty.TYPE_PARAMETERS);
-		addRelationship(node, node.getReturnType2(), ASTProperty.RETURN_TYPE);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationships(node, node.parameters(), ASTProperty.PARAMETERS);
-		addRelationship(node, node.getBody(), ASTProperty.BODY);
+		addRelationship(node, node.getJavadoc(), RelName.JAVADOC);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationships(node, node.typeParameters(), RelName.TYPE_PARAMETERS);
+		addRelationship(node, node.getReturnType2(), RelName.RETURN_TYPE);
+		addRelationship(node, node.getName(), RelName.NAME);
+		addRelationships(node, node.parameters(), RelName.PARAMETERS);
+		addRelationship(node, node.getBody(), RelName.BODY);
 	}
 
 	@Override
 	public void endVisit(MethodInvocation node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
-		addRelationships(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
+		addRelationships(node, node.typeArguments(), RelName.TYPE_ARGUMENTS);
+		addRelationship(node, node.getName(), RelName.NAME);
+		addRelationships(node, node.arguments(), RelName.ARGUMENTS);
 	}
 
 	@Override
@@ -860,9 +952,9 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(PackageDeclaration node) {
-		addRelationship(node, node.getJavadoc(), ASTProperty.JAVADOC);
-		addRelationships(node, node.annotations(), ASTProperty.ANNOTATIONS);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getJavadoc(), RelName.JAVADOC);
+		addRelationships(node, node.annotations(), RelName.ANNOTATIONS);
+		addRelationship(node, node.getName(), RelName.NAME);
 	}
 
 	@Override
@@ -877,7 +969,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(PostfixExpression node) {
-		addRelationship(node, node.getOperand(), ASTProperty.OPERAND);
+		addRelationship(node, node.getOperand(), RelName.OPERAND);
 	}
 
 	@Override
@@ -892,20 +984,20 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(QualifiedName node) {
-		addRelationship(node, node.getQualifier(), ASTProperty.QUALIFIER);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getQualifier(), RelName.QUALIFIER);
+		addRelationship(node, node.getName(), RelName.NAME);
 	}
 
 	@Override
 	public void endVisit(QualifiedType node) {
-		addRelationship(node, node.getQualifier(), ASTProperty.QUALIFIER);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getQualifier(), RelName.QUALIFIER);
+		addRelationship(node, node.getName(), RelName.NAME);
 
 	}
 
 	@Override
 	public void endVisit(ReturnStatement node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
 	}
 
 	@Override
@@ -915,7 +1007,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(SimpleType node) {
-		addRelationship(node, node.getName(), ASTProperty.NAME);
+		addRelationship(node, node.getName(), RelName.NAME);
 	}
 
 	@Override
@@ -925,10 +1017,10 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(SingleVariableDeclaration node) {
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationship(node, node.getType(), ASTProperty.TYPE);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationship(node, node.getInitializer(), ASTProperty.INITIALIZER);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationship(node, node.getType(), RelName.TYPE);
+		addRelationship(node, node.getName(), RelName.NAME);
+		addRelationship(node, node.getInitializer(), RelName.INITIALIZER);
 	}
 
 	@Override
@@ -938,9 +1030,9 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(SuperConstructorInvocation node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
-		addRelationships(node, node.typeArguments(), ASTProperty.TYPE_ARGUMENTS);
-		addRelationships(node, node.arguments(), ASTProperty.ARGUMENTS);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
+		addRelationships(node, node.typeArguments(), RelName.TYPE_ARGUMENTS);
+		addRelationships(node, node.arguments(), RelName.ARGUMENTS);
 	}
 
 	@Override
@@ -970,7 +1062,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(TagElement node) {
-		addRelationships(node, node.fragments(), ASTProperty.FRAGMENTS);
+		addRelationships(node, node.fragments(), RelName.FRAGMENTS);
 	}
 
 	@Override
@@ -980,36 +1072,34 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(ThisExpression node) {
-		addRelationship(node, node.getQualifier(), ASTProperty.QUALIFIER);
+		addRelationship(node, node.getQualifier(), RelName.QUALIFIER);
 	}
 
 	@Override
 	public void endVisit(ThrowStatement node) {
-		addRelationship(node, node.getExpression(), ASTProperty.EXPRESSION);
+		addRelationship(node, node.getExpression(), RelName.EXPRESSION);
 
 	}
 
 	@Override
 	public void endVisit(TryStatement node) {
-		// addRelationship(node, node.getResources(), ASTProperty.RESOURCES);
-		addRelationship(node, node.getBody(), ASTProperty.BODY);
-		addRelationships(node, node.catchClauses(), ASTProperty.CATCH_CLAUSES);
-		addRelationship(node, node.getFinally(), ASTProperty.FINALLY);
+		// addRelationship(node, node.getResources(), RelName.RESOURCES);
+		addRelationship(node, node.getBody(), RelName.BODY);
+		addRelationships(node, node.catchClauses(), RelName.CATCH_CLAUSES);
+		addRelationship(node, node.getFinally(), RelName.FINALLY);
 	}
 
 	@Override
 	public void endVisit(TypeDeclaration node) {
-		addRelationship(node, node.getJavadoc(), ASTProperty.JAVADOC);
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationships(node, node.typeParameters(),
-				ASTProperty.TYPE_PARAMETERS);
-		addRelationship(node, node.getSuperclassType(),
-				ASTProperty.SUPERCLASS_TYPE);
+		addRelationship(node, node.getJavadoc(), RelName.JAVADOC);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationship(node, node.getName(), RelName.NAME);
+		addRelationships(node, node.typeParameters(), RelName.TYPE_PARAMETERS);
+		addRelationship(node, node.getSuperclassType(), RelName.SUPERCLASS_TYPE);
 		addRelationships(node, node.superInterfaceTypes(),
-				ASTProperty.SUPER_INTERFACE_TYPES);
+				RelName.SUPER_INTERFACE_TYPES);
 		addRelationships(node, node.bodyDeclarations(),
-				ASTProperty.BODY_DECLARATIONS);
+				RelName.BODY_DECLARATIONS);
 	}
 
 	@Override
@@ -1029,22 +1119,22 @@ public class StoreVisitor extends ASTVisitor {
 
 	@Override
 	public void endVisit(VariableDeclarationExpression node) {
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationship(node, node.getType(), ASTProperty.TYPE);
-		addRelationships(node, node.fragments(), ASTProperty.FRAGMENTS);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationship(node, node.getType(), RelName.TYPE);
+		addRelationships(node, node.fragments(), RelName.FRAGMENTS);
 	}
 
 	@Override
 	public void endVisit(VariableDeclarationFragment node) {
-		addRelationship(node, node.getName(), ASTProperty.NAME);
-		addRelationship(node, node.getInitializer(), ASTProperty.INITIALIZER);
+		addRelationship(node, node.getName(), RelName.NAME);
+		addRelationship(node, node.getInitializer(), RelName.INITIALIZER);
 	}
 
 	@Override
 	public void endVisit(VariableDeclarationStatement node) {
-		addRelationships(node, node.modifiers(), ASTProperty.MODIFIERS);
-		addRelationship(node, node.getType(), ASTProperty.TYPE);
-		addRelationships(node, node.fragments(), ASTProperty.FRAGMENTS);
+		addRelationships(node, node.modifiers(), RelName.MODIFIERS);
+		addRelationship(node, node.getType(), RelName.TYPE);
+		addRelationships(node, node.fragments(), RelName.FRAGMENTS);
 	}
 
 	@Override

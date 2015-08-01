@@ -20,7 +20,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import relationship.Rels;
+import relationship.RelType;
 import ast.ASTCreator;
 import ast.StoreVisitor;
 
@@ -50,7 +50,7 @@ public class StoreWorker implements Worker {
 		// create virtual "Project" node and link it to all CompilationUnits
 		Node projectNode = db.createNode(DynamicLabel.label("Project"));
 		for (Node node : compilationUnits) {
-			Relationship rel = projectNode.createRelationshipTo(node, Rels.AST);
+			Relationship rel = projectNode.createRelationshipTo(node, RelType.AST);
 			rel.setProperty("NAME", "FILES");
 		}
 		
@@ -80,7 +80,7 @@ public class StoreWorker implements Worker {
 			String bindingKey = binding.getKey();
 			Node keyNode = keyNodeCreator.getInstance(bindingKey);
 			Node typeNode = map.get(type);
-			typeNode.createRelationshipTo(keyNode, Rels.KEY);
+			typeNode.createRelationshipTo(keyNode, RelType.KEY);
 		}
 	}
 }
