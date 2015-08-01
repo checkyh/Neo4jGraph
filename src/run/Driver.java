@@ -16,7 +16,7 @@ public class Driver {
 		PropertyConfigurator.configure("log4j.properties");
 		
 		try {
-			Option.readOption("./config.ini");
+			Option.readOptions("./config.ini");
 		} catch (IOException e) {
 			logger.error("Fail to get global configuration.");
 			return;
@@ -26,7 +26,7 @@ public class Driver {
 		
 		Neo4j neo4j = Neo4j.open(Option.DATABASE_DIR, Neo4j.WRITE);
 		neo4j.run(worker);
-		neo4j.shutdown();
+		neo4j.close();
 		
 		logger.info("Done.");
 	}

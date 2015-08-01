@@ -11,6 +11,13 @@ import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTParser;
 
+/**
+ * create ASTs for all the java files under certain project
+ * <p>
+ * The <code>iterator()</code> method returns iterator of ASTs. Iterate through it to get all the ASTs under the project.
+ * The iterator is lazy, that is, the AST is not created until you call the <code>next()</code> method.
+ *
+ */
 public class ASTCreator implements Iterable<ASTNode> {
 	
 	private static Logger logger = Logger.getLogger(ASTCreator.class);
@@ -51,7 +58,7 @@ public class ASTCreator implements Iterable<ASTNode> {
 		}
 	}
 
-	public ASTNode createAST(String filepath) {
+	private ASTNode createAST(String filepath) {
 
 		String program;
 

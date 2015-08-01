@@ -1,7 +1,9 @@
 package run;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
@@ -24,17 +26,19 @@ import ast.StoreVisitor;
 public class StoreWorker implements Worker {
 	
 	private static Logger logger = Logger.getLogger(StoreWorker.class);
+	
+	private List<Type> types = new LinkedList<>();
+	private Map<ASTNode, Node> map = new HashMap<>();
 
 	@Override
 	public void work(GraphDatabaseService db) {
 		
-		logger.info("Working for " + Option.FILEPATH);
-
-		// parse java file to AST
+		// parse all java files in project to AST
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
 		
 		List<Node> compilationUnits = new ArrayList<>();
 
+		// create and store ASTs one by one
 		Iterator<ASTNode> iterator = creator.iterator();
 		while (iterator.hasNext()) {
 			ASTNode root = iterator.next();
@@ -42,6 +46,10 @@ public class StoreWorker implements Worker {
 			compilationUnits.add(rootNode);
 		}
 		
+		// add TypeKey nodes
+		createTypeKeys(db, types, map);
+		
+		// create virtual "Project" node and link it to all CompilationUnits
 		Node projectNode = db.createNode(DynamicLabel.label("Project"));
 		for (Node node : compilationUnits) {
 			Relationship rel = projectNode.createRelationshipTo(node, Rels.AST);
@@ -56,11 +64,15 @@ public class StoreWorker implements Worker {
 		// store AST into database
 		StoreVisitor visitor = new StoreVisitor(db);
 		root.accept(visitor);
-		List<Type> types = visitor.getTypes();
-		Map<ASTNode, Node> map = visitor.getMap();
-		Node rootNode = map.get(root);
 		
-		// add TypeKey nodes
+		types.addAll(visitor.getTypes());
+		map.putAll(visitor.getMap());
+		
+		return map.get(root);
+	}
+
+	private void createTypeKeys(GraphDatabaseService db, List<Type> types,
+			Map<ASTNode, Node> map) {
 		TypeKeyCreator keyNodeCreator = new TypeKeyCreator(db);
 		for (Type type : types) {
 			IBinding binding = type.resolveBinding();
@@ -69,8 +81,5 @@ public class StoreWorker implements Worker {
 			Node typeNode = map.get(type);
 			typeNode.createRelationshipTo(keyNode, Rels.KEY);
 		}
-		
-		return rootNode;
-		
 	}
 }
