@@ -7,7 +7,6 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import neo4j.Neo4j;
 import neo4j.Worker;
 import node.TypeKeyCreator;
 
@@ -32,9 +31,7 @@ public class StoreWorker implements Worker {
 	private Map<ASTNode, Node> map = new HashMap<>();
 
 	@Override
-	public void workFor(Neo4j neo4j) {
-		
-		GraphDatabaseService db = neo4j.getDb();
+	public void work(GraphDatabaseService db) {
 		
 		List<Node> compilationUnits = new ArrayList<>();
 

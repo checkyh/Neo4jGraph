@@ -11,11 +11,7 @@ public class Neo4j {
 	
 	private static Logger logger = Logger.getLogger(Neo4j.class);
 	
-	private GraphDatabaseService db;
-	
-	public GraphDatabaseService getDb() {
-		return db;
-	}
+	private final GraphDatabaseService db;
 
 	public static final int WRITE = 0;
 	public static final int APPEND = 1;
@@ -49,8 +45,8 @@ public class Neo4j {
 	
 	private static boolean deleteDirectory(File dir) {
 		if (dir.isDirectory()) {
-			for (String children : dir.list()) {
-				boolean success = deleteDirectory(new File(dir, children));
+			for (String child : dir.list()) {
+				boolean success = deleteDirectory(new File(dir, child));
 				if (!success) {
 					return false;
 				}
@@ -69,7 +65,7 @@ public class Neo4j {
 	 */
 	public void run(Worker worker) {
 		try (Transaction tx = db.beginTx()) {
-			worker.workFor(this);
+			worker.work(db);
 			tx.success();
 		}
 	}
