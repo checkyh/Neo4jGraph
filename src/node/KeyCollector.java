@@ -2,7 +2,6 @@ package node;
 
 import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -11,19 +10,43 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
+import org.eclipse.jdt.core.dom.VariableDeclaration;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 
 import relationship.RelType;
 
 public class KeyCollector {
 
-	private List<ASTNode> types = new LinkedList<>();
-	private List<ASTNode> methods = new LinkedList<>();
+	private static final int TYPE = 0;
+	private static final int METHOD = 1;
+	private static final int VARIABLE = 2;
 
-	public void receiveType(ASTNode node) {
+	@SuppressWarnings("rawtypes")
+	private LinkedList[] keys;
+
+	private LinkedList<ASTNode> types = new LinkedList<>();
+	private LinkedList<ASTNode> methods = new LinkedList<>();
+	private LinkedList<ASTNode> variables = new LinkedList<>();
+
+	public KeyCollector() {
+		keys = new LinkedList[3];
+		keys[0] = types;
+		keys[1] = methods;
+		keys[2] = variables;
+	}
+
+	public void receive(ASTNode node) {
 		if (node instanceof Type || node instanceof TypeDeclaration) {
 			types.add(node);
+		}
+		if (node instanceof MethodDeclaration
+				|| node instanceof MethodInvocation) {
+			methods.add(node);
+		}
+		if (node instanceof VariableDeclaration) {
+			variables.add(node);
 		}
 	}
 
@@ -36,15 +59,7 @@ public class KeyCollector {
 		} else {
 			throw new IllegalArgumentException();
 		}
-		String bindingKey = binding.getKey();
-		return bindingKey;
-	}
-
-	public void receiveMethod(ASTNode node) {
-		if (node instanceof MethodDeclaration
-				|| node instanceof MethodInvocation) {
-			methods.add(node);
-		}
+		return binding.getKey();
 	}
 
 	private String getMethodBinding(ASTNode node) {
@@ -59,34 +74,47 @@ public class KeyCollector {
 		return binding.getKey();
 	}
 
-	public void createTypeKeys(GraphDatabaseService db, Map<ASTNode, Node> map) {
-		Map<String, Node> dict = new HashMap<>();
-		for (ASTNode node : types) {
-			String bindingKey = getTypeBinding(node);
-
-			if (dict.get(bindingKey) == null) {
-				Node typeKey = db.createNode(Labels.Key, Labels.TypeKey);
-				typeKey.setProperty("KEY", bindingKey);
-				dict.put(bindingKey, typeKey);
-			}
-			Node typeKey = dict.get(bindingKey);
-			map.get(node).createRelationshipTo(typeKey, RelType.KEY);
+	private String getVariableBinding(ASTNode node) {
+		IBinding binding;
+		if (node instanceof VariableDeclaration) {
+			binding = ((VariableDeclaration) node).resolveBinding();
+		} else {
+			throw new IllegalArgumentException();
 		}
+		return binding.getKey();
 	}
 
-	public void createMethodKeys(GraphDatabaseService db, Map<ASTNode, Node> map) {
+	public void createKeys(GraphDatabaseService db, Map<ASTNode, Node> map) {
+		createKeys(db, map, TYPE, Labels.TypeKey);
+		createKeys(db, map, METHOD, Labels.MethodKey);
+		createKeys(db, map, VARIABLE, Labels.VariableKey);
+	}
+
+	private void createKeys(GraphDatabaseService db, Map<ASTNode, Node> map,
+			int kind, Label label) {
 		Map<String, Node> dict = new HashMap<>();
-		for (ASTNode node : methods) {
-			String bindingKey = getMethodBinding(node);
+		@SuppressWarnings("unchecked")
+		LinkedList<ASTNode> concreteKeys = (LinkedList<ASTNode>) keys[kind];
+		for (ASTNode node : concreteKeys) {
+			String bindingKey;
+			if (kind == TYPE) {
+				bindingKey = getTypeBinding(node);
+			} else if (kind == METHOD) {
+				bindingKey = getMethodBinding(node);
+			} else if (kind == VARIABLE) {
+				bindingKey = getVariableBinding(node);
+			} else {
+				throw new IllegalArgumentException();
+			}
 
 			if (dict.get(bindingKey) == null) {
-				Node typeKey = db.createNode(Labels.Key, Labels.MethodKey);
+				Node typeKey = db.createNode(Labels.Key, label);
 				typeKey.setProperty("KEY", bindingKey);
 				dict.put(bindingKey, typeKey);
 			}
 
-			Node typeKey = dict.get(bindingKey);
-			map.get(node).createRelationshipTo(typeKey, RelType.KEY);
+			Node keyNode = dict.get(bindingKey);
+			map.get(node).createRelationshipTo(keyNode, RelType.KEY);
 		}
 	}
 }

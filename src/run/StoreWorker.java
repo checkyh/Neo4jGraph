@@ -76,8 +76,7 @@ public class StoreWorker implements Worker {
 
 	private void createKeys(GraphDatabaseService db) {
 		logger.info("Create TypeKey nodes");
-		collector.createTypeKeys(db, map);
-		collector.createMethodKeys(db, map);
+		collector.createKeys(db, map);
 	}
 
 	private void createUmlRelationships(GraphDatabaseService db) {
@@ -98,7 +97,7 @@ public class StoreWorker implements Worker {
 				+ "()–[:KEY]->(:TypeKey)<-[:KEY]-(I:TypeDeclaration {INTERFACE:{true}}) "
 				+ "create (C)-[:UML {NAME:'IMPLEMENTS'}]->(I)";
 		
-		String callUmlQuery = "match (M1:MethodDeclaration)-[:AST*]->(i:MethodInvocation)- "
+		String callUmlQuery = "match (M1:MethodDeclaration)-[:AST*]->(:MethodInvocation)- "
 				+ "[:KEY]->(:MethodKey)<-[:KEY]-(M2:MethodDeclaration) "
 				+ "merge (M1)-[:CALL]->(M2)";
 

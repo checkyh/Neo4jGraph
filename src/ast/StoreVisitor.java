@@ -239,8 +239,7 @@ public class StoreVisitor extends ASTVisitor {
 		addRawLabel(node);
 		addGeneralLabel(node);
 
-		collector.receiveType(node);
-		collector.receiveMethod(node);
+		collector.receive(node);
 	}
 
 	@Override
