@@ -1,15 +1,15 @@
 package ast;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import node.BooleanLiteralCreator;
+import node.Labels;
 import node.ModifierCreator;
 import node.NodeCreator;
-import node.Labels;
 import node.NullLiteralCreator;
+import node.KeyCollector;
 
 import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.ASTVisitor;
@@ -135,18 +135,17 @@ import relationship.RelType;
 public class StoreVisitor extends ASTVisitor {
 
 	private GraphDatabaseService db;
+	private KeyCollector collector;
 
 	private Map<ASTNode, Node> map = new HashMap<>();
 
-	private List<ASTNode> types = new ArrayList<>();
-	private List<ASTNode> methods = new ArrayList<>();
-	
 	private NodeCreator modifierCreator;
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
 
-	public StoreVisitor(GraphDatabaseService db) {
+	public StoreVisitor(GraphDatabaseService db, KeyCollector collector) {
 		this.db = db;
+		this.collector = collector;
 		this.modifierCreator = new ModifierCreator(db);
 		this.booleanLiteralCreator = new BooleanLiteralCreator(db);
 		this.nullLiteralCreator = new NullLiteralCreator(db);
@@ -154,14 +153,6 @@ public class StoreVisitor extends ASTVisitor {
 	
 	public Map<ASTNode, Node> getMap() {
 		return map;
-	}
-
-	public List<ASTNode> getTypes() {
-		return types;
-	}
-
-	public List<ASTNode> getMethods() {
-		return methods;
 	}
 
 	private void addRelationship(ASTNode startNode, ASTNode endNode,
@@ -248,13 +239,8 @@ public class StoreVisitor extends ASTVisitor {
 		addRawLabel(node);
 		addGeneralLabel(node);
 
-		if (node instanceof Type || node instanceof TypeDeclaration) {
-			types.add(node);
-		}
-		if (node instanceof MethodInvocation
-				|| node instanceof MethodDeclaration) {
-			methods.add(node);
-		}
+		collector.receiveType(node);
+		collector.receiveMethod(node);
 	}
 
 	@Override
