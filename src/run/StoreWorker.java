@@ -28,8 +28,9 @@ public class StoreWorker implements Worker {
 
 	private static Logger logger = Logger.getLogger(StoreWorker.class);
 
-	private List<ASTNode> types = new LinkedList<>();
 	private Map<ASTNode, Node> map = new HashMap<>();
+	private List<ASTNode> types = new LinkedList<>();
+	private List<ASTNode> methods = new LinkedList<>();
 
 	@Override
 	public void work(GraphDatabaseService db) {
@@ -55,6 +56,7 @@ public class StoreWorker implements Worker {
 
 		// add TypeKey nodes
 		createTypeKeys(db, types, map);
+		createMethodKeys(db, methods, map);
 
 		createUmlRelationships(db);
 
@@ -67,8 +69,9 @@ public class StoreWorker implements Worker {
 		StoreVisitor visitor = new StoreVisitor(db);
 		root.accept(visitor);
 
-		types.addAll(visitor.getTypes());
 		map.putAll(visitor.getMap());
+		types.addAll(visitor.getTypes());
+		methods.addAll(visitor.getMethods());
 
 		return map.get(root);
 	}
@@ -91,21 +94,30 @@ public class StoreWorker implements Worker {
 			neo4jNode.createRelationshipTo(keyNode, RelType.KEY);
 		}
 	}
+	
+	private void createMethodKeys(GraphDatabaseService db, List<ASTNode> methods,
+			Map<ASTNode, Node> map) {
+		logger.debug(methods.size() + " methods in all");
+	}
 
 	private void createUmlRelationships(GraphDatabaseService db) {
-		// add 'EXTENDS' UML relationship between classes
 		String classExtendsUmlQuery = "match (C1:TypeDeclaration)-"
 				+ "[:AST {NAME:'SUPERCLASS_TYPE'}]->"
 				+ "()–[:KEY]->(:TypeKey)<-[:KEY]-(C2:TypeDeclaration) "
 				+ "create (C1)-[:UML {NAME:'EXTENDS'}]->(C2)";
 		
-		// add 'EXTENDS' UML relationship between interfaces
 		String interfaceExtendsUmlQuery = "match (I1:TypeDeclaration {INTERFACE:{true}})-"
-				+ "[:AST{NAME:'SUPER_INTERFACE_TYPES'}]->"
+				+ "[:AST {NAME:'SUPER_INTERFACE_TYPES'}]->"
 				+ "()–[:KEY]->(:Typekey)<-[:KEY]-(I2:TypeDeclaration {INTERFACE:{true}}) "
 				+ "create (I1)-[:UML {NAME:'EXTENDS'}]->(I2)";
+		
+		String implementsUmlQuery = "match (C:TypeDeclaration {INTERFACE:{false}})-"
+				+ "[:AST {NAME:'SUPER_INTERFACE_TYPES'}]->"
+				+ "()–[:KEY]->(:TypeKey)<-[:KEY]-(I:TypeDeclaration {INTERFACE:{true}}) "
+				+ "create (C)-[:UML {NAME:'IMPLEMENTS'}]->(I)";
 
 		db.execute(classExtendsUmlQuery);
 		db.execute(interfaceExtendsUmlQuery);
+		db.execute(implementsUmlQuery);
 	}
 }

@@ -139,6 +139,8 @@ public class StoreVisitor extends ASTVisitor {
 	private Map<ASTNode, Node> map = new HashMap<>();
 
 	private List<ASTNode> types = new ArrayList<>();
+	private List<ASTNode> methods = new ArrayList<>();
+	
 	private NodeCreator modifierCreator;
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
@@ -156,6 +158,10 @@ public class StoreVisitor extends ASTVisitor {
 
 	public List<ASTNode> getTypes() {
 		return types;
+	}
+
+	public List<ASTNode> getMethods() {
+		return methods;
 	}
 
 	private void addRelationship(ASTNode startNode, ASTNode endNode,
@@ -244,6 +250,10 @@ public class StoreVisitor extends ASTVisitor {
 
 		if (node instanceof Type || node instanceof TypeDeclaration) {
 			types.add(node);
+		}
+		if (node instanceof MethodInvocation
+				|| node instanceof MethodDeclaration) {
+			methods.add(node);
 		}
 	}
 
