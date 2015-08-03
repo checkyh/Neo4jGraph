@@ -138,7 +138,7 @@ public class StoreVisitor extends ASTVisitor {
 
 	private Map<ASTNode, Node> map = new HashMap<>();
 
-	private List<Type> types = new ArrayList<>();
+	private List<ASTNode> types = new ArrayList<>();
 	private NodeCreator modifierCreator;
 	private NodeCreator booleanLiteralCreator;
 	private NodeCreator nullLiteralCreator;
@@ -154,7 +154,7 @@ public class StoreVisitor extends ASTVisitor {
 		return map;
 	}
 
-	public List<Type> getTypes() {
+	public List<ASTNode> getTypes() {
 		return types;
 	}
 
@@ -188,7 +188,7 @@ public class StoreVisitor extends ASTVisitor {
 	private void addLabel(ASTNode node, String labelName) {
 		map.get(node).addLabel(DynamicLabel.label(labelName));
 	}
-	
+
 	private void addLabel(ASTNode node, Label label) {
 		map.get(node).addLabel(label);
 	}
@@ -242,8 +242,8 @@ public class StoreVisitor extends ASTVisitor {
 		addRawLabel(node);
 		addGeneralLabel(node);
 
-		if (node instanceof Type) {
-			types.add((Type) node);
+		if (node instanceof Type || node instanceof TypeDeclaration) {
+			types.add(node);
 		}
 	}
 
