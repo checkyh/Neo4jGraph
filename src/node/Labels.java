@@ -2,7 +2,15 @@ package node;
 
 import org.neo4j.graphdb.Label;
 
-public enum GeneralLabel implements Label {
+public enum Labels implements Label {
+	
+	// key labels
+	Key,
+	TypeKey,
+	MethodKey,
+	VariableKey,
+	
+	// general labels
 	BodyDeclaration,
 	AbstractTypeDeclaration,
 	Comment,
@@ -12,4 +20,7 @@ public enum GeneralLabel implements Label {
 	Statement,
 	Type,
 	VariableDeclaration,
+	
+	// project
+	Project,
 }

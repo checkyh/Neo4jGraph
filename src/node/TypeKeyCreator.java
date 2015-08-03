@@ -18,7 +18,7 @@ public class TypeKeyCreator {
 	
 	public Node getInstance(String bindingKey) {
 		if (map.get(bindingKey) == null) {
-			Node node = db.createNode(KeyLabel.Key, KeyLabel.TypeKey);
+			Node node = db.createNode(Labels.Key, Labels.TypeKey);
 			node.setProperty("KEY", bindingKey);
 			map.put(bindingKey, node);
 		}

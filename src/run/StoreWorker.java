@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 
 import neo4j.Worker;
+import node.Labels;
 import node.TypeKeyCreator;
 
 import org.apache.log4j.Logger;
@@ -15,7 +16,6 @@ import org.eclipse.jdt.core.dom.ASTNode;
 import org.eclipse.jdt.core.dom.IBinding;
 import org.eclipse.jdt.core.dom.Type;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
@@ -46,7 +46,7 @@ public class StoreWorker implements Worker {
 		}
 
 		// create virtual "Project" node and link it to all CompilationUnits
-		Node projectNode = db.createNode(DynamicLabel.label("Project"));
+		Node projectNode = db.createNode(Labels.Project);
 		for (Node node : compilationUnits) {
 			Relationship rel = projectNode.createRelationshipTo(node,
 					RelType.AST);

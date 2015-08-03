@@ -8,7 +8,7 @@ import java.util.Map;
 import node.BooleanLiteralCreator;
 import node.ModifierCreator;
 import node.NodeCreator;
-import node.GeneralLabel;
+import node.Labels;
 import node.NullLiteralCreator;
 
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -203,23 +203,23 @@ public class StoreVisitor extends ASTVisitor {
 
 	private void addGeneralLabel(ASTNode node) {
 		if (node instanceof BodyDeclaration) {
-			addLabel(node, GeneralLabel.BodyDeclaration);
+			addLabel(node, Labels.BodyDeclaration);
 		} else if (node instanceof AbstractTypeDeclaration) {
-			addLabel(node, GeneralLabel.AbstractTypeDeclaration);
+			addLabel(node, Labels.AbstractTypeDeclaration);
 		} else if (node instanceof Comment) {
-			addLabel(node, GeneralLabel.Comment);
+			addLabel(node, Labels.Comment);
 		} else if (node instanceof Expression) {
-			addLabel(node, GeneralLabel.Expression);
+			addLabel(node, Labels.Expression);
 		} else if (node instanceof Annotation) {
-			addLabel(node, GeneralLabel.Annatation);
+			addLabel(node, Labels.Annatation);
 		} else if (node instanceof Name) {
-			addLabel(node, GeneralLabel.Name);
+			addLabel(node, Labels.Name);
 		} else if (node instanceof Statement) {
-			addLabel(node, GeneralLabel.Statement);
+			addLabel(node, Labels.Statement);
 		} else if (node instanceof Type) {
-			addLabel(node, GeneralLabel.Type);
+			addLabel(node, Labels.Type);
 		} else if (node instanceof VariableDeclaration) {
-			addLabel(node, GeneralLabel.VariableDeclaration);
+			addLabel(node, Labels.VariableDeclaration);
 		}
 	}
 
