@@ -32,20 +32,46 @@ public class StoreWorker implements Worker {
 	private List<ASTNode> types = new LinkedList<>();
 	private List<ASTNode> methods = new LinkedList<>();
 
+	private List<Node> compilationUnits = new ArrayList<>();
+
 	@Override
 	public void work(GraphDatabaseService db) {
 
-		List<Node> compilationUnits = new ArrayList<>();
+		storeASTs(db);
+		
+		createProjectNode(db);
 
+		createTypeKeys(db);
+		createMethodKeys(db);
+
+		createUmlRelationships(db);
+
+		logger.info("Work finished");
+	}
+
+	private void storeASTs(GraphDatabaseService db) {
+		
 		// create and store ASTs one by one
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
 		Iterator<ASTNode> iterator = creator.iterator();
+		
 		while (iterator.hasNext()) {
 			ASTNode root = iterator.next();
-			Node rootNode = storeAST(db, root);
-			compilationUnits.add(rootNode);
+			
+			// store AST into database
+			StoreVisitor visitor = new StoreVisitor(db);
+			root.accept(visitor);
+			
+			map.putAll(visitor.getMap());
+			types.addAll(visitor.getTypes());
+			methods.addAll(visitor.getMethods());
+			compilationUnits.add(map.get(root));
 		}
+	}
 
+	private void createProjectNode(GraphDatabaseService db) {
+		logger.info("Create Project node");
+		
 		// create virtual "Project" node and link it to all CompilationUnits
 		Node projectNode = db.createNode(Labels.Project);
 		for (Node node : compilationUnits) {
@@ -53,31 +79,11 @@ public class StoreWorker implements Worker {
 					RelType.AST);
 			rel.setProperty("NAME", "FILES");
 		}
-
-		// add TypeKey nodes
-		createTypeKeys(db, types, map);
-		createMethodKeys(db, methods, map);
-
-		createUmlRelationships(db);
-
-		logger.info("Work finished");
 	}
 
-	private Node storeAST(GraphDatabaseService db, ASTNode root) {
-
-		// store AST into database
-		StoreVisitor visitor = new StoreVisitor(db);
-		root.accept(visitor);
-
-		map.putAll(visitor.getMap());
-		types.addAll(visitor.getTypes());
-		methods.addAll(visitor.getMethods());
-
-		return map.get(root);
-	}
-
-	private void createTypeKeys(GraphDatabaseService db, List<ASTNode> types,
-			Map<ASTNode, Node> map) {
+	private void createTypeKeys(GraphDatabaseService db) {
+		logger.info("Create TypeKey nodes");
+		
 		TypeKeyCreator keyNodeCreator = new TypeKeyCreator(db);
 		for (ASTNode node : types) {
 			IBinding binding;
@@ -95,12 +101,14 @@ public class StoreWorker implements Worker {
 		}
 	}
 	
-	private void createMethodKeys(GraphDatabaseService db, List<ASTNode> methods,
-			Map<ASTNode, Node> map) {
+	private void createMethodKeys(GraphDatabaseService db) {
+		logger.info("Create MethodKey nodes");
 		logger.debug(methods.size() + " methods in all");
 	}
 
 	private void createUmlRelationships(GraphDatabaseService db) {
+		logger.info("Create UML relationships");
+		
 		String classExtendsUmlQuery = "match (C1:TypeDeclaration)-"
 				+ "[:AST {NAME:'SUPERCLASS_TYPE'}]->"
 				+ "()–[:KEY]->(:TypeKey)<-[:KEY]-(C2:TypeDeclaration) "

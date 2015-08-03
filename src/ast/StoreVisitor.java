@@ -151,7 +151,7 @@ public class StoreVisitor extends ASTVisitor {
 		this.booleanLiteralCreator = new BooleanLiteralCreator(db);
 		this.nullLiteralCreator = new NullLiteralCreator(db);
 	}
-
+	
 	public Map<ASTNode, Node> getMap() {
 		return map;
 	}
