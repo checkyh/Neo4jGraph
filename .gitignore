@@ -1,0 +1,11 @@
+.gitignore
+.classpath
+
+*.class
+*.jar
+
+*.ini
+
+
+/bin/
+/database/
