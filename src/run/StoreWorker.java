@@ -39,7 +39,7 @@ public class StoreWorker implements Worker {
 
 		createKeys(db);
 
-		createUmlRelationships(db);
+		createHighLevelRelationships(db);
 
 		logger.info("Work finished");
 	}
@@ -79,8 +79,8 @@ public class StoreWorker implements Worker {
 		collector.createKeys(db, map);
 	}
 
-	private void createUmlRelationships(GraphDatabaseService db) {
-		logger.info("Create UML relationships");
+	private void createHighLevelRelationships(GraphDatabaseService db) {
+		logger.info("Create high-level relationships");
 
 		String classExtendsUmlQuery = "match (C1:TypeDeclaration)-"
 				+ "[:AST {NAME:'SUPERCLASS_TYPE'}]->"

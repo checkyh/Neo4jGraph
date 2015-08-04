@@ -13,6 +13,21 @@ The project is developed with Neo4j 2.2.3.
 
 You can find ASTView plug-in in Eclipse Marketplace.
 
+### 3. set classpath
+
+Select _Project->Properties->Java Build Path_ to set your classpath.
+
+Add _.gitignore_ under your project directory to avoid pushing _.classpath_ to repo:
+
+	.gitignore
+	
+	*.class
+	*.jar
+	*.ini
+	
+	/bin/
+	/database/
+
 # Run the code
 
 ### Configuration file
@@ -31,6 +46,7 @@ After the program finished, open the Neo4j server and land on http://localhost:7
 ### Notes
 
 + You must not run the code with the Neo4j server running, or you will get a Java Runtime Exception.
+
 
 
 
