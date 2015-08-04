@@ -20,6 +20,7 @@ Select _Project->Properties->Java Build Path_ to set your classpath.
 Add _.gitignore_ under your project directory to avoid pushing _.classpath_ to repo:
 
 	.gitignore
+	.classpath
 	
 	*.class
 	*.jar
