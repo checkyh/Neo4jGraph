@@ -2,13 +2,8 @@ package run;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-
-import neo4j.Worker;
-import node.Labels;
-import node.KeyCollector;
 
 import org.apache.log4j.Logger;
 import org.eclipse.jdt.core.dom.ASTNode;
@@ -16,9 +11,12 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 
-import relationship.RelType;
 import ast.ASTCreator;
 import ast.StoreVisitor;
+import neo4j.Worker;
+import node.KeyCollector;
+import node.Labels;
+import relationship.RelType;
 
 public class StoreWorker implements Worker {
 
@@ -48,10 +46,9 @@ public class StoreWorker implements Worker {
 
 		// create and store ASTs one by one
 		ASTCreator creator = new ASTCreator(Option.PROJECT_DIR);
-		Iterator<ASTNode> iterator = creator.iterator();
 
-		while (iterator.hasNext()) {
-			ASTNode root = iterator.next();
+		while (creator.hasNext()) {
+			ASTNode root = creator.next();
 
 			// store AST into database
 			StoreVisitor visitor = new StoreVisitor(db, collector);

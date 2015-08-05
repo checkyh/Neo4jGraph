@@ -23,44 +23,33 @@ import org.eclipse.jdt.core.dom.ASTParser;
  * AST is not created until you call the <code>next()</code> method.
  *
  */
-public class ASTCreator implements Iterable<ASTNode> {
+public class ASTCreator implements Iterator<ASTNode> {
 	
 	private static Logger logger = Logger.getLogger(ASTCreator.class);
 
 	private String[] classpathEntries;
 	private String[] sourcepathEntries;
+	
 	private List<String> filepaths;
+	private Iterator<String> iter;
 
 	public ASTCreator(String projectDirPath) {
 		PathExplorer explorer = PathExplorer.startExplore(projectDirPath);
 		classpathEntries = explorer.getClassPaths();
 		sourcepathEntries = explorer.getSourcePaths();
 		filepaths = explorer.getFilePaths();
+		iter = filepaths.iterator();
 	}
 
 	@Override
-	public Iterator<ASTNode> iterator() {
-		return new ASTIterator();
+	public boolean hasNext() {
+		return iter.hasNext();
 	}
-
-	private class ASTIterator implements Iterator<ASTNode> {
-
-		private Iterator<String> iter;
-		
-		public ASTIterator() {
-			iter = filepaths.iterator();
-		}
-
-		@Override
-		public boolean hasNext() {
-			return iter.hasNext();
-		}
-
-		@Override
-		public ASTNode next() {
-			String filepath = iter.next();
-			return createAST(filepath);
-		}
+	
+	@Override
+	public ASTNode next() {
+		String filepath = iter.next();
+		return createAST(filepath);
 	}
 
 	private ASTNode createAST(String filepath) {
@@ -80,6 +69,7 @@ public class ASTCreator implements Iterable<ASTNode> {
 		Map options = JavaCore.getOptions();
 		JavaCore.setComplianceOptions(JavaCore.VERSION_1_7, options);
 		parser.setCompilerOptions(options);
+		
 		parser.setSource(program.toCharArray());
 		parser.setKind(ASTParser.K_COMPILATION_UNIT);
 		parser.setEnvironment(classpathEntries, sourcepathEntries, null, true);
